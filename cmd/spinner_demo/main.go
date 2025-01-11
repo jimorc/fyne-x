@@ -9,7 +9,7 @@ import (
 
 func main() {
 	a := app.New()
-	spinner := xwidget.NewSpinner(0, 10, 2)
+	spinner := xwidget.NewSpinner(-2002, 300, 200)
 	c := container.NewCenter(spinner)
 	w := a.NewWindow("Spinner Demo")
 	w.SetContent(c)
