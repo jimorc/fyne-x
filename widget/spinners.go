@@ -538,8 +538,10 @@ func (r *SpinnerRenderer) Layout(size fyne.Size) {
 	borderSize := th.Size(theme.SizeNameInputBorder)
 	padding := th.Size(theme.SizeNameInnerPadding)
 
+	buttonSize := r.spinner.upButton.MinSize()
+	newSize := fyne.NewSize(size.Width-buttonSize.Width-padding/2, size.Height)
 	// 0.5 is removed so on low DPI it rounds down on the trailing edge
-	newSize := fyne.NewSize(size.Width-0.5, size.Height-0.5)
+	newSize = fyne.NewSize(newSize.Width-0.5, newSize.Height-0.5)
 	topLeft := fyne.NewPos(0, 0)
 	r.box.Resize(newSize)
 	r.box.Move(topLeft)
@@ -549,17 +551,18 @@ func (r *SpinnerRenderer) Layout(size fyne.Size) {
 
 	textSize := r.spinner.textSize()
 	rMinSize := r.MinSize()
-	buttonSize := r.spinner.upButton.MinSize()
-	xPos := size.Width - buttonSize.Width - borderSize - padding/2
+	// -2 in the line below positions the text correctly. I could not find
+	// any specific reason for this value, just that it works.
+	xPos := size.Width - buttonSize.Width - padding - 2
 	yPos := (rMinSize.Height - textSize.Height) / 2
 	r.text.Move(fyne.NewPos(xPos, yPos))
 
-	xPos += padding / 4
-	yPos -= padding - 2
+	xPos += padding
+	yPos -= padding - 1
 	r.spinner.upButton.Resize(buttonSize)
 	r.spinner.upButton.Move(fyne.NewPos(xPos, yPos))
 
-	yPos = r.spinner.upButton.MinSize().Height + padding/2 - 1
+	yPos = r.spinner.upButton.MinSize().Height + padding/2
 	r.spinner.downButton.Resize(buttonSize)
 	r.spinner.downButton.Move(fyne.NewPos(xPos, yPos))
 }
