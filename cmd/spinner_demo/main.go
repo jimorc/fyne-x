@@ -55,9 +55,11 @@ func main() {
 	}
 	// OnChanged has to be called here to display initial value in s1ValueLabel.
 	s1.OnChanged(s1.GetValue())
+	le1 := widget.NewLabel("EntrySpinner 1 (0, 100, 1, \"%d %%\"):")
+	se1 := xwidget.NewEntrySpinner(0, 100, 1, "%d %%", nil)
 	l2 := widget.NewLabel("Spinner 2 With Data (-2, 16, 3, \"%+d\"):")
 	s2 := xwidget.NewSpinnerWithData(-2, 16, 3, "%+d", data)
-	c := container.NewGridWithColumns(2, l1, s1)
+	c := container.NewGridWithColumns(2, l1, s1, le1, se1)
 	c1 := container.NewHBox(l2, s2)
 	l3 := widget.NewLabel("Uninitialized Spinner 3:")
 	s3 := xwidget.NewSpinnerUninitialized("%d")
