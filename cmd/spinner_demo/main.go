@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
@@ -48,6 +49,7 @@ func main() {
 
 	c2 := container.NewGridWithColumns(2, ls1, s1ValueLabel, ls2, dataValueLabel)
 	l1 := widget.NewLabel("Spinner 1 (0, 100, 1, \"%d %%\"):")
+	l1.Alignment = fyne.TextAlignTrailing
 	s1 = xwidget.NewSpinner(0, 100, 1, "%d %%", nil)
 	s1.OnChanged = func(val float64) {
 		s1ValueLabel.Text = fmt.Sprintf("%d %%", int(s1.GetValue()))
@@ -56,12 +58,16 @@ func main() {
 	// OnChanged has to be called here to display initial value in s1ValueLabel.
 	s1.OnChanged(s1.GetValue())
 	le1 := widget.NewLabel("EntrySpinner 1 (0, 100, 1, \"%d %%\"):")
+	le1.Alignment = fyne.TextAlignTrailing
 	se1 := xwidget.NewEntrySpinner(0, 100, 1, "%d %%", nil)
+
 	l2 := widget.NewLabel("Spinner 2 With Data (-2, 16, 3, \"%+d\"):")
 	s2 := xwidget.NewSpinnerWithData(-2, 16, 3, "%+d", data)
-	c := container.NewGridWithColumns(2, l1, s1, le1, se1)
+	c := container.NewGridWithColumns(2, l1, s1)
+	ce := container.NewGridWithColumns(2, le1, se1)
 	c1 := container.NewHBox(l2, s2)
 	l3 := widget.NewLabel("Uninitialized Spinner 3:")
+	l3.Alignment = fyne.TextAlignTrailing
 	s3 := xwidget.NewSpinnerUninitialized("%d")
 	c3 := container.NewHBox(l3, s3)
 	b := widget.NewButton("Disable Spinner 1", func() {})
@@ -93,7 +99,7 @@ func main() {
 	s5 = xwidget.NewSpinnerWithData(0., 16., 3.215, "%.2f", floatData)
 	c5 := container.NewHBox(l5, s5)
 
-	v := container.NewVBox(c, c1, c3, b, bs, c2, bs1, bs2, c4, c5, c6)
+	v := container.NewVBox(c, ce, c1, c3, b, bs, c2, bs1, bs2, c4, c5, c6)
 	w := a.NewWindow("SpinnerDemo")
 	w.SetContent(v)
 	w.ShowAndRun()

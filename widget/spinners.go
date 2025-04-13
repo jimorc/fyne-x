@@ -626,6 +626,7 @@ type EntrySpinner struct {
 	step   float64
 	format string
 
+	entry      *NumericalEntry
 	upButton   *spinnerButton
 	downButton *spinnerButton
 
@@ -665,6 +666,7 @@ func NewEntrySpinner(min, max, step float64, format string, onChanged func(float
 		OnChanged: onChanged,
 	}
 	s.initialized = true
+	s.entry = NewNumericalEntry()
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
 	s.SetValue(s.min)
@@ -686,6 +688,7 @@ func NewEntrySpinner(min, max, step float64, format string, onChanged func(float
 func NewEntrySpinnerUninitialized(format string) *EntrySpinner {
 	s := &EntrySpinner{format: format}
 	s.initialized = false
+	s.entry = NewNumericalEntry()
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
 	s.Disable()
@@ -723,28 +726,13 @@ func (s *EntrySpinner) Bind(data binding.Float) {
 // CreateRenderer is a private method to fyne which links this widget to its
 // renderer.
 func (s *EntrySpinner) CreateRenderer() fyne.WidgetRenderer {
-	s.ExtendBaseWidget(s)
-	th := s.Theme()
-	v := fyne.CurrentApp().Settings().ThemeVariant()
-	box := canvas.NewRectangle(th.Color(theme.ColorNameBackground, v))
-	border := canvas.NewRectangle(color.Transparent)
-
-	value := fmt.Sprintf(s.format, s.value)
-	text := canvas.NewText(value, th.Color(theme.ColorNameForeground, v))
-	text.Alignment = fyne.TextAlignTrailing
-
 	objects := []fyne.CanvasObject{
-		box,
-		border,
-		text,
+		s.entry,
 		s.upButton,
 		s.downButton,
 	}
 	r := &EntrySpinnerRenderer{
 		spinner: s,
-		box:     box,
-		border:  border,
-		text:    text,
 		objects: objects,
 	}
 	return r
@@ -799,15 +787,15 @@ func (s *EntrySpinner) GetValue() float64 {
 	return s.value
 }
 
-// MinSize returns the minimum size of the Spinner widget. The minimum size is calculated
+// MinSize returns the minimum size of the EntrySpinner widget. The minimum size is calculated
 // based on the maximum width that the value could require based on its format.
 func (s *EntrySpinner) MinSize() fyne.Size {
 	th := s.Theme()
 	padding := fyne.NewSquareSize(th.Size(theme.SizeNameInnerPadding) * 2)
-	textSize := s.textSize()
-	tHeight := textSize.Height + padding.Height
+	entrySize := s.entry.MinSize()
+	tHeight := entrySize.Height + fyne.NewSquareSize(th.Size(theme.SizeNameInnerPadding)).Height
 	upButtonHeight := s.upButton.MinSize().Height
-	tWidth := textSize.Width + upButtonHeight + padding.Width
+	tWidth := entrySize.Width + upButtonHeight + padding.Width
 	return fyne.NewSize(tWidth, tHeight)
 }
 
@@ -889,6 +877,11 @@ func (s *EntrySpinner) SetValue(val float64) {
 		s.downButton.Disable()
 	} else {
 		s.downButton.Enable()
+	}
+	if s.entry.AllowFloat {
+		s.entry.SetText(fmt.Sprintf(s.format, s.value))
+	} else {
+		s.entry.SetText(fmt.Sprintf(s.format, int(s.value)))
 	}
 	s.Refresh()
 	if s.OnChanged != nil {
@@ -1020,9 +1013,6 @@ func (s *EntrySpinner) writeData(data binding.DataItem) {
 // EntrySpinner is the renderer for the EntrySpinner widget
 type EntrySpinnerRenderer struct {
 	spinner *EntrySpinner
-	box     *canvas.Rectangle
-	border  *canvas.Rectangle
-	text    *canvas.Text
 	objects []fyne.CanvasObject
 }
 
@@ -1032,33 +1022,25 @@ func (r *EntrySpinnerRenderer) Destroy() {}
 
 // Layout positions and sizes all of the objects that make up the Float64Spinner widget.
 func (r *EntrySpinnerRenderer) Layout(size fyne.Size) {
-	r.spinner.Refresh()
 	th := r.spinner.Theme()
 	borderSize := th.Size(theme.SizeNameInputBorder)
 	padding := th.Size(theme.SizeNameInnerPadding)
 
-	// 0.5 is removed so on low DPI it rounds down on the trailing edge
-	newSize := fyne.NewSize(size.Width-0.5, size.Height-0.5)
-	topLeft := fyne.NewPos(0, 0)
-	r.box.Resize(newSize)
-	r.box.Move(topLeft)
-	r.border.Resize(newSize)
-	r.border.StrokeWidth = borderSize
-	r.border.Move(topLeft)
-
-	textSize := r.spinner.textSize()
-	rMinSize := r.MinSize()
 	buttonSize := r.spinner.upButton.MinSize()
-	xPos := size.Width - buttonSize.Width - borderSize - padding/2
-	yPos := (rMinSize.Height - textSize.Height) / 2
-	r.text.Move(fyne.NewPos(xPos, yPos))
+	xPos := float32(0.)
+	yPos := padding / 2
+	r.spinner.entry.Move(fyne.NewPos(xPos, yPos))
+	eWidth := size.Width - buttonSize.Width - borderSize - padding/2
+	eHeight := r.spinner.entry.MinSize().Height
+	r.spinner.entry.Resize(fyne.NewSize(eWidth, eHeight))
 
-	xPos += padding / 4
-	yPos -= padding - 2
+	xPos = size.Width - buttonSize.Width - borderSize - padding/4
+	yPos = padding/2 + 2
 	r.spinner.upButton.Resize(buttonSize)
 	r.spinner.upButton.Move(fyne.NewPos(xPos, yPos))
 
-	yPos = r.spinner.upButton.MinSize().Height + padding/2 - 1
+	yPos = eHeight - buttonSize.Height + 2
+	//r.spinner.upButton.MinSize().Height + padding - 1
 	r.spinner.downButton.Resize(buttonSize)
 	r.spinner.downButton.Move(fyne.NewPos(xPos, yPos))
 }
@@ -1075,25 +1057,8 @@ func (r *EntrySpinnerRenderer) Objects() []fyne.CanvasObject {
 
 // Refresh refreshes (redisplays) the Float64Spinner widget.
 func (r *EntrySpinnerRenderer) Refresh() {
-	th := r.spinner.Theme()
-	v := fyne.CurrentApp().Settings().ThemeVariant()
-
-	fgColor, bgColor, borderColor := spinnerColors(
-		r.spinner.Disabled(), r.spinner.focused, r.spinner.hovered)
-	r.box.FillColor = th.Color(bgColor, v)
-	r.box.CornerRadius = th.Size(theme.SizeNameInputRadius)
-	r.border.CornerRadius = r.box.CornerRadius
-	r.border.StrokeColor = th.Color(borderColor, v)
-
-	if strings.Contains(r.spinner.format, "%d") ||
-		strings.Contains(r.spinner.format, "%+d") {
-		r.text.Text = fmt.Sprintf(r.spinner.format, int(r.spinner.value))
-	} else {
-		r.text.Text = fmt.Sprintf(r.spinner.format, r.spinner.value)
-	}
-	r.text.Color = th.Color(fgColor, v)
-	r.text.Refresh()
-
+	r.spinner.entry.SetText(fmt.Sprintf(r.spinner.format, r.spinner.value))
+	r.spinner.entry.Refresh()
 	r.spinner.upButton.enableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.max)
 	r.spinner.downButton.enableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.min)
 }
