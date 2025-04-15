@@ -612,6 +612,76 @@ func (s *Spinner) upButtonClicked() {
 	s.SetValue(s.value + s.step)
 }
 
+type entrySpinnerEntry struct {
+	NumericalEntry
+
+	spinner  *EntrySpinner
+	shortcut fyne.ShortcutHandler
+
+	ctrlKeyDown bool ``
+}
+
+func newEntrySpinnerEntry(s *EntrySpinner) *entrySpinnerEntry {
+	e := &entrySpinnerEntry{spinner: s}
+	e.registerShortcuts()
+	e.ExtendBaseWidget(e)
+	return e
+}
+
+func (e *entrySpinnerEntry) registerShortcuts() {
+	keyDown := &desktop.CustomShortcut{KeyName: fyne.KeyDown, Modifier: fyne.KeyModifierControl}
+	keyUp := &desktop.CustomShortcut{KeyName: fyne.KeyUp, Modifier: fyne.KeyModifierControl}
+	e.shortcut.AddShortcut(keyDown, func(shortcut fyne.Shortcut) {
+		e.spinner.SetValue(e.spinner.min - e.spinner.step)
+	})
+	e.shortcut.AddShortcut(keyUp, func(shortcut fyne.Shortcut) {
+		e.spinner.SetValue(e.spinner.max)
+	})
+}
+
+// TypedKey receives key input events when the spinner widget has focus.
+// Increments/decrements the spinner's value when the up or down key is
+// pressed.
+//
+// Implements: fyne.Focusable
+
+func (e *entrySpinnerEntry) TypedKey(key *fyne.KeyEvent) {
+	if !e.spinner.Disabled() {
+		switch key.Name {
+		case fyne.KeyUp:
+			e.spinner.SetValue(e.spinner.value + e.spinner.step)
+		case fyne.KeyDown:
+			e.spinner.SetValue(e.spinner.value - e.spinner.step)
+		default:
+			e.NumericalEntry.TypedKey(key)
+		}
+	}
+}
+
+func (e *entrySpinnerEntry) TypedRune(r rune) {
+	if !e.spinner.Disabled() {
+		switch r {
+		case '>':
+			e.spinner.SetValue(e.spinner.value + e.spinner.step)
+		case '<':
+			e.spinner.SetValue(e.spinner.value - e.spinner.step)
+		default:
+			e.NumericalEntry.TypedRune(r)
+		}
+	}
+}
+
+func (e *entrySpinnerEntry) TypedShortcut(shortcut fyne.Shortcut) {
+	if !e.spinner.Disabled() {
+		switch shortcut.(type) {
+		case *desktop.CustomShortcut:
+			e.shortcut.TypedShortcut(shortcut)
+		default:
+			e.NumericalEntry.TypedShortcut(shortcut)
+		}
+	}
+}
+
 var _ fyne.Disableable = (*EntrySpinner)(nil)
 var _ fyne.Focusable = (*EntrySpinner)(nil)
 var _ fyne.Tappable = (*EntrySpinner)(nil)
@@ -629,7 +699,7 @@ type EntrySpinner struct {
 	step   float64
 	format string
 
-	entry      *NumericalEntry
+	entry      *entrySpinnerEntry
 	upButton   *spinnerButton
 	downButton *spinnerButton
 
@@ -641,7 +711,7 @@ type EntrySpinner struct {
 	OnChanged func(float64) `json:"-"`
 }
 
-// NewSpinner creates a new Spinner widget.
+// NewEntrySpinner creates a new Spinner widget.
 //
 // Params:
 //
@@ -669,7 +739,11 @@ func NewEntrySpinner(min, max, step float64, format string, onChanged func(float
 		OnChanged: onChanged,
 	}
 	s.initialized = true
-	s.entry = NewNumericalEntry()
+	s.entry = newEntrySpinnerEntry(s)
+	if !strings.Contains(s.format, "%d") &&
+		!strings.Contains(s.format, "%+d") {
+		s.entry.AllowFloat = true
+	}
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
 	s.SetValue(s.min)
@@ -691,7 +765,7 @@ func NewEntrySpinner(min, max, step float64, format string, onChanged func(float
 func NewEntrySpinnerUninitialized(format string) *EntrySpinner {
 	s := &EntrySpinner{format: format}
 	s.initialized = false
-	s.entry = NewNumericalEntry()
+	s.entry = newEntrySpinnerEntry(s)
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
 	s.Disable()
@@ -886,7 +960,7 @@ func (s *EntrySpinner) SetValue(val float64) {
 	} else {
 		s.entry.SetText(fmt.Sprintf(s.format, int(s.value)))
 	}
-	s.Refresh()
+	s.entry.Refresh()
 	if s.OnChanged != nil {
 		s.OnChanged(s.value)
 	}
@@ -917,9 +991,9 @@ func (s *EntrySpinner) TypedKey(key *fyne.KeyEvent) {
 		return
 	}
 	switch key.Name {
-	case fyne.KeyUp:
+	case fyne.KeyRight:
 		s.SetValue(s.value + s.step)
-	case fyne.KeyDown:
+	case fyne.KeyLeft:
 		s.SetValue(s.value - s.step)
 	default:
 		return
