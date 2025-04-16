@@ -11,10 +11,16 @@ import (
 func main() {
 	a := app.New()
 	w := a.NewWindow("Spinner Demo")
-	l := widget.NewLabel("Int Spinner:")
-	l.Alignment = fyne.TextAlignTrailing
-	s := xwidget.NewSpinner(1, 10, 2)
-	c := container.NewGridWithColumns(2, l, s)
+	intLabel := widget.NewLabel("Int Spinner:")
+	intLabel.Alignment = fyne.TextAlignTrailing
+	intSpinner := xwidget.NewSpinner(1, 10, 2, 0)
+	intC := container.NewGridWithColumns(2, intLabel, intSpinner)
+
+	f2Label := widget.NewLabel("Float Spinner:")
+	f2Label.Alignment = fyne.TextAlignTrailing
+	f2Spinner := xwidget.NewSpinner(-2, 25, 1, 2)
+	f2C := container.NewGridWithColumns(2, f2Label, f2Spinner)
+	c := container.NewVBox(intC, f2C)
 	w.SetContent(c)
 	w.ShowAndRun()
 }

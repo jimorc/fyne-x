@@ -65,8 +65,6 @@ func (b *spinnerButton) setButtonProperties(resource fyne.Resource, onTapped fun
 // spinnerEntry is the entry widget for the Spinner widget.
 type spinnerEntry struct {
 	NumericalEntry
-
-	spinner *Spinner
 }
 
 // newSpinnerEntry creates a spinnerEntry widget.
@@ -88,10 +86,11 @@ var _ fyne.Disableable = (*Spinner)(nil)
 type Spinner struct {
 	widget.DisableableWidget
 
-	value float64
-	min   float64
-	max   float64
-	step  float64
+	value         float64
+	min           float64
+	max           float64
+	step          float64
+	decimalPlaces uint
 
 	entry      *spinnerEntry
 	upButton   *spinnerButton
@@ -101,8 +100,40 @@ type Spinner struct {
 // NewSpinner creates a new Spinner object.
 //
 // Params:
-func NewSpinner(min, max, step float64) *Spinner {
-	s := &Spinner{min: min, max: max, step: step}
+//
+//	min is the minimum value that the spinner can be set to. It may be < 0.
+//	max is the maximum value that the spinner can be set to. It must be > min.
+//	step is the amount that the spinner value increases or decreases by. It
+//
+// must be > 0 and <= max-min.
+//
+//	decPlaces is the number of decimal places to display the value in. This
+//
+// value must be <= 10. If this
+//
+// value is 0, then the spinner displays integer values.
+//
+// Returns a Spinner object if the arguments passed are valid. Otherwise, nil
+// is returned.
+func NewSpinner(min, max, step float64, decPlaces uint) *Spinner {
+	if min >= max {
+		fyne.LogError("spinner max must be > min", nil)
+		return nil
+	}
+	if step <= 0 {
+		fyne.LogError("step must be > 0", nil)
+		return nil
+	}
+	if step > max-min {
+		fyne.LogError("step must be <= max-min", nil)
+		return nil
+	}
+	if decPlaces > 10 {
+		fyne.LogError("decimal places must be <= 10", nil)
+		return nil
+	}
+
+	s := &Spinner{min: min, max: max, step: step, decimalPlaces: decPlaces}
 	s.ExtendBaseWidget(s)
 
 	s.value = s.min
@@ -112,6 +143,12 @@ func NewSpinner(min, max, step float64) *Spinner {
 	s.downButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropDown),
 		s.downButtonClicked)
 
+	if s.min < 0 {
+		s.entry.AllowNegative = true
+	}
+	if s.decimalPlaces != 0 {
+		s.entry.AllowFloat = true
+	}
 	return s
 }
 
@@ -185,7 +222,11 @@ func (r *spinnerRenderer) Objects() []fyne.CanvasObject {
 
 // Refresh redisplays the Spinner widget.
 func (r *spinnerRenderer) Refresh() {
-	tVal := fmt.Sprintf("%f", r.spinner.value)
-	r.spinner.entry.SetText(tVal)
+	if r.spinner.decimalPlaces == 0 {
+		r.spinner.entry.SetText(fmt.Sprintf("%d", int(r.spinner.value)))
+	} else {
+		format := fmt.Sprintf("%%.%df", r.spinner.decimalPlaces)
+		r.spinner.entry.SetText(fmt.Sprintf(format, r.spinner.value))
+	}
 	r.spinner.entry.Refresh()
 }
