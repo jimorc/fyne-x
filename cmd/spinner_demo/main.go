@@ -13,7 +13,7 @@ func main() {
 	w := a.NewWindow("Spinner Demo")
 	l := widget.NewLabel("Int Spinner:")
 	l.Alignment = fyne.TextAlignTrailing
-	s := xwidget.NewSpinner()
+	s := xwidget.NewSpinner(1, 10, 2)
 	c := container.NewGridWithColumns(2, l, s)
 	w.SetContent(c)
 	w.ShowAndRun()

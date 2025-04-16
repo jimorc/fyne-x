@@ -1,6 +1,8 @@
 package widget
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -86,6 +88,11 @@ var _ fyne.Disableable = (*Spinner)(nil)
 type Spinner struct {
 	widget.DisableableWidget
 
+	value float64
+	min   float64
+	max   float64
+	step  float64
+
 	entry      *spinnerEntry
 	upButton   *spinnerButton
 	downButton *spinnerButton
@@ -94,10 +101,11 @@ type Spinner struct {
 // NewSpinner creates a new Spinner object.
 //
 // Params:
-func NewSpinner() *Spinner {
-	s := &Spinner{}
+func NewSpinner(min, max, step float64) *Spinner {
+	s := &Spinner{min: min, max: max, step: step}
 	s.ExtendBaseWidget(s)
 
+	s.value = s.min
 	s.entry = newSpinnerEntry()
 	s.upButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropUp),
 		s.upButtonClicked)
@@ -162,6 +170,7 @@ func (r *spinnerRenderer) Layout(size fyne.Size) {
 	r.spinner.downButton.Resize(buttonSize)
 	r.spinner.downButton.Move(fyne.NewPos(xPos, yPos))
 
+	r.spinner.Refresh()
 }
 
 // MinSize returns the minimum size that the Spinner widget can be rendered to.
@@ -175,4 +184,8 @@ func (r *spinnerRenderer) Objects() []fyne.CanvasObject {
 }
 
 // Refresh redisplays the Spinner widget.
-func (r *spinnerRenderer) Refresh() {}
+func (r *spinnerRenderer) Refresh() {
+	tVal := fmt.Sprintf("%f", r.spinner.value)
+	r.spinner.entry.SetText(tVal)
+	r.spinner.entry.Refresh()
+}
