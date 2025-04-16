@@ -97,7 +97,8 @@ type Spinner struct {
 	downButton *spinnerButton
 }
 
-// NewSpinner creates a new Spinner object.
+// NewSpinner creates a new Spinner object. The initrial value is set to the
+// value of the min argument.
 //
 // Params:
 //
@@ -136,7 +137,6 @@ func NewSpinner(min, max, step float64, decPlaces uint) *Spinner {
 	s := &Spinner{min: min, max: max, step: step, decimalPlaces: decPlaces}
 	s.ExtendBaseWidget(s)
 
-	s.value = s.min
 	s.entry = newSpinnerEntry()
 	s.upButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropUp),
 		s.upButtonClicked)
@@ -149,6 +149,7 @@ func NewSpinner(min, max, step float64, decPlaces uint) *Spinner {
 	if s.decimalPlaces != 0 {
 		s.entry.AllowFloat = true
 	}
+	s.SetValue(s.min)
 	return s
 }
 
@@ -158,6 +159,32 @@ func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 	r := &spinnerRenderer{spinner: s}
 	r.objects = []fyne.CanvasObject{s.entry, s.upButton, s.downButton}
 	return r
+}
+
+// GetValue returns the value of the spinner.
+func (s *Spinner) GetValue() float64 {
+	return s.value
+}
+
+// SetValue sets the spinner value. If the value is < min, then the
+// value is set to min. If the value is > max, then the value is set
+// to max. The spinner's buttons are enabled or disabled as appropriate.
+func (s *Spinner) SetValue(value float64) {
+	s.value = value
+	if value <= s.min {
+		s.value = s.min
+		s.downButton.Disable()
+	} else {
+		s.downButton.Enable()
+	}
+
+	if value >= s.max {
+		s.value = s.max
+		s.upButton.Disable()
+	} else {
+		s.upButton.Enable()
+	}
+	s.Refresh()
 }
 
 // MinSize returns the minimum size of a Spinner widget. This minimum size is
@@ -229,4 +256,6 @@ func (r *spinnerRenderer) Refresh() {
 		r.spinner.entry.SetText(fmt.Sprintf(format, r.spinner.value))
 	}
 	r.spinner.entry.Refresh()
+	r.spinner.upButton.Refresh()
+	r.spinner.downButton.Refresh()
 }
