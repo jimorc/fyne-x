@@ -110,3 +110,31 @@ func TestSpinner_DownButtonTapped(t *testing.T) {
 	assert.False(t, s.upButton.Disabled())
 	assert.True(t, s.downButton.Disabled())
 }
+
+func TestSpinner_Disable(t *testing.T) {
+	s := NewSpinner(4, 10, 5, 0)
+	s.Disable()
+	assert.True(t, s.Disabled())
+	assert.True(t, s.entry.Disabled())
+	assert.True(t, s.upButton.Disabled())
+	assert.True(t, s.downButton.Disabled())
+}
+
+func TestSpinner_Enable(t *testing.T) {
+	s := NewSpinner(4, 10, 5, 0)
+	s.Disable()
+	s.Enable()
+	assert.False(t, s.Disabled())
+	assert.False(t, s.entry.Disabled())
+	assert.False(t, s.upButton.Disabled())
+	assert.False(t, s.downButton.Disabled())
+}
+
+func TestSpinnerUninitialized_Enable(t *testing.T) {
+	s := NewSpinnerUninitialized(0)
+	s.Enable()
+	assert.True(t, s.Disabled())
+	assert.True(t, s.entry.Disabled())
+	assert.True(t, s.upButton.Disabled())
+	assert.True(t, s.downButton.Disabled())
+}

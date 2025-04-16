@@ -194,6 +194,10 @@ func (s *Spinner) Disable() {
 
 // Enable enables the spinner and all of its components.
 func (s *Spinner) Enable() {
+	if !s.initialized {
+		fyne.LogError("Trying to enable uninitialized spinner", nil)
+		return
+	}
 	s.DisableableWidget.Enable()
 	s.entry.Enable()
 	s.upButton.Enable()
