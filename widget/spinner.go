@@ -64,6 +64,9 @@ func (b *spinnerButton) setButtonProperties(resource fyne.Resource, onTapped fun
 	b.size = fyne.NewSize(h, h)
 }
 
+var _ fyne.Disableable = (*spinnerButton)(nil)
+var _ fyne.Focusable = (*spinnerButton)(nil)
+
 // spinnerEntry is the entry widget for the Spinner widget.
 type spinnerEntry struct {
 	NumericalEntry
@@ -78,6 +81,21 @@ func newSpinnerEntry(s *Spinner) *spinnerEntry {
 	e.ExtendBaseWidget(e)
 
 	return e
+}
+
+// TypedKey receives key input events when the spinner's entry widget has focus.
+// Increments/decrements the spinner's value when  the up or down key is pressed.
+//
+// Implements: fyne.Focusable
+func (e *spinnerEntry) TypedKey(key *fyne.KeyEvent) {
+	if !e.Disabled() {
+		switch key.Name {
+		case fyne.KeyUp:
+			e.spinner.upButtonClicked()
+		case fyne.KeyDown:
+			e.spinner.downButtonClicked()
+		}
+	}
 }
 
 // validate tests the text in the entry widget of the spinner to ensure that

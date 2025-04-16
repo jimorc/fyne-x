@@ -182,3 +182,26 @@ func TestSpinnerEntry_Validator(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "value is not between min and max", err.Error())
 }
+
+func TestSpinnerEntryUpKey(t *testing.T) {
+	s := NewSpinner(4, 10, 5, 1)
+	s.entry.Tapped(&fyne.PointEvent{})
+	s.entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyUp})
+	assert.Equal(t, float64(9), s.GetValue())
+	s.entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyUp})
+	assert.Equal(t, float64(10), s.GetValue())
+	s.entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyUp})
+	assert.Equal(t, float64(10), s.GetValue())
+}
+
+func TestSpinnerEntryDownKey(t *testing.T) {
+	s := NewSpinner(1, 10, 5, 1)
+	s.SetValue(8)
+	s.entry.Tapped(&fyne.PointEvent{})
+	s.entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyDown})
+	assert.Equal(t, float64(3), s.GetValue())
+	s.entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyDown})
+	assert.Equal(t, float64(1), s.GetValue())
+	s.entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyDown})
+	assert.Equal(t, float64(1), s.GetValue())
+}
