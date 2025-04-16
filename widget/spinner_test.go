@@ -3,6 +3,7 @@ package widget
 import (
 	"testing"
 
+	"fyne.io/fyne/v2"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -65,4 +66,25 @@ func TestSpinnerSetValue(t *testing.T) {
 	assert.Equal(t, "1", s.entry.Text)
 	assert.True(t, s.downButton.Disabled())
 	assert.False(t, s.upButton.Disabled())
+}
+
+func TestSpinner_UpButtonTapped(t *testing.T) {
+	s := NewSpinner(4., 10., 5., 0)
+	s.upButton.Tapped(&fyne.PointEvent{})
+	assert.Equal(t, 9., s.GetValue())
+	s.upButton.Tapped(&fyne.PointEvent{})
+	assert.Equal(t, 10., s.GetValue())
+	assert.True(t, s.upButton.Disabled())
+	assert.False(t, s.downButton.Disabled())
+}
+
+func TestSpinner_DownButtonTapped(t *testing.T) {
+	s := NewSpinner(4, 10, 5, 0)
+	s.SetValue(10.)
+	s.downButton.Tapped(&fyne.PointEvent{})
+	assert.Equal(t, 5., s.GetValue())
+	s.downButton.Tapped(&fyne.PointEvent{})
+	assert.Equal(t, 4., s.GetValue())
+	assert.False(t, s.upButton.Disabled())
+	assert.True(t, s.downButton.Disabled())
 }

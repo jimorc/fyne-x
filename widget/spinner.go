@@ -198,10 +198,14 @@ func (s *Spinner) MinSize() fyne.Size {
 }
 
 // downButtonClicked handles Tap events for the spinner's down button.
-func (s *Spinner) downButtonClicked() {}
+func (s *Spinner) downButtonClicked() {
+	s.SetValue(s.value - s.step)
+}
 
 // upButtonClicked handles Tap events for the spinner's up button.
-func (s *Spinner) upButtonClicked() {}
+func (s *Spinner) upButtonClicked() {
+	s.SetValue(s.value + s.step)
+}
 
 // spinnerRenderer is the renderer for the Spinner widget.
 type spinnerRenderer struct {
