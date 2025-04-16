@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -71,16 +72,30 @@ var _ fyne.Focusable = (*spinnerButton)(nil)
 type spinnerEntry struct {
 	NumericalEntry
 
-	spinner *Spinner
+	shortcut fyne.ShortcutHandler
+	spinner  *Spinner
 }
 
 // newSpinnerEntry creates a spinnerEntry widget.
 func newSpinnerEntry(s *Spinner) *spinnerEntry {
 	e := &spinnerEntry{spinner: s}
+	e.registerShortcuts()
 	e.Validator = e.validate
 	e.ExtendBaseWidget(e)
 
 	return e
+}
+
+// TypedShortcut handles the entry's shortcut keys.
+func (e *spinnerEntry) TypedShortcut(shortcut fyne.Shortcut) {
+	if !e.spinner.Disabled() {
+		switch shortcut.(type) {
+		case *desktop.CustomShortcut:
+			e.shortcut.TypedShortcut(shortcut)
+		default:
+			e.NumericalEntry.TypedShortcut(shortcut)
+		}
+	}
 }
 
 // TypedKey receives key input events when the spinner's entry widget has focus.
@@ -96,6 +111,18 @@ func (e *spinnerEntry) TypedKey(key *fyne.KeyEvent) {
 			e.spinner.downButtonClicked()
 		}
 	}
+}
+
+// registerShortcuts registers the shortcuts for the spinnerEntry widget.
+func (e *spinnerEntry) registerShortcuts() {
+	keyDown := &desktop.CustomShortcut{KeyName: fyne.KeyDown, Modifier: fyne.KeyModifierControl}
+	keyUp := &desktop.CustomShortcut{KeyName: fyne.KeyUp, Modifier: fyne.KeyModifierControl}
+	e.shortcut.AddShortcut(keyDown, func(shortcut fyne.Shortcut) {
+		e.spinner.SetValue(e.spinner.min)
+	})
+	e.shortcut.AddShortcut(keyUp, func(shortcut fyne.Shortcut) {
+		e.spinner.SetValue(e.spinner.max)
+	})
 }
 
 // validate tests the text in the entry widget of the spinner to ensure that

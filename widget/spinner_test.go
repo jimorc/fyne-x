@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/driver/desktop"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -204,4 +205,12 @@ func TestSpinnerEntryDownKey(t *testing.T) {
 	assert.Equal(t, float64(1), s.GetValue())
 	s.entry.TypedKey(&fyne.KeyEvent{Name: fyne.KeyDown})
 	assert.Equal(t, float64(1), s.GetValue())
+}
+
+func TestSpinnerEntryTypedShortcut(t *testing.T) {
+	s := NewSpinner(1, 10, 5, 1)
+	s.entry.TypedShortcut(&desktop.CustomShortcut{KeyName: fyne.KeyDown, Modifier: fyne.KeyModifierControl})
+	assert.Equal(t, float64(1), s.GetValue())
+	s.entry.TypedShortcut(&desktop.CustomShortcut{KeyName: fyne.KeyUp, Modifier: fyne.KeyModifierControl})
+	assert.Equal(t, float64(10), s.GetValue())
 }
