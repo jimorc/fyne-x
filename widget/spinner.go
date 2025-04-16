@@ -166,6 +166,16 @@ func (s *Spinner) GetValue() float64 {
 	return s.value
 }
 
+// MinSize returns the minimum size of a Spinner widget. This minimum size is
+// calculated based on the maximum width that the spinner's value would require
+// based on it's format.
+func (s *Spinner) MinSize() fyne.Size {
+	w := s.entry.MinSize().Width + s.upButton.MinSize().Width
+	h := s.entry.MinSize().Height
+
+	return fyne.NewSize(w, h)
+}
+
 // SetValue sets the spinner value. If the value is < min, then the
 // value is set to min. If the value is > max, then the value is set
 // to max. The spinner's buttons are enabled or disabled as appropriate.
@@ -185,16 +195,6 @@ func (s *Spinner) SetValue(value float64) {
 		s.upButton.Enable()
 	}
 	s.Refresh()
-}
-
-// MinSize returns the minimum size of a Spinner widget. This minimum size is
-// calculated based on the maximum width that the spinner's value would require
-// based on it's format.
-func (s *Spinner) MinSize() fyne.Size {
-	w := s.entry.MinSize().Width + s.upButton.MinSize().Width
-	h := s.entry.MinSize().Height
-
-	return fyne.NewSize(w, h)
 }
 
 // downButtonClicked handles Tap events for the spinner's down button.
