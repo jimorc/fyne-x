@@ -1,10 +1,7 @@
 package widget
 
 import (
-	"image/color"
-
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -12,6 +9,8 @@ import (
 // spinnerButton is the widget used for buttons in the Spinner widget.
 type spinnerButton struct {
 	widget.Button
+
+	spinner *Spinner
 
 	position fyne.Position
 	size     fyne.Size
@@ -23,8 +22,8 @@ type spinnerButton struct {
 //
 //	resource is the resource used as the button icon.
 //	onTapped is the callback function for button clicks.
-func newSpinnerButton(resource fyne.Resource, onTapped func()) *spinnerButton {
-	b := &spinnerButton{}
+func newSpinnerButton(s *Spinner, resource fyne.Resource, onTapped func()) *spinnerButton {
+	b := &spinnerButton{spinner: s}
 	b.ExtendBaseWidget(b)
 
 	b.setButtonProperties(resource, onTapped)
@@ -56,21 +55,38 @@ func (b *spinnerButton) setButtonProperties(resource fyne.Resource, onTapped fun
 
 	// calculate minimum button size (really just its height).
 	th := b.Theme()
-	padding := fyne.NewSquareSize(th.Size(theme.SizeNameInnerPadding) * 2)
-	text := canvas.NewText("0", color.Black)
-	textSize, _ := fyne.CurrentApp().Driver().RenderedTextSize(text.Text,
-		text.TextSize, text.TextStyle, text.FontSource)
-	tHeight := textSize.Height + padding.Height
-
-	h := tHeight/2 - th.Size(theme.SizeNameInputBorder) - 2
+	tHeight := b.spinner.entry.MinSize().Height
+	h := tHeight/2 - th.Size(theme.SizeNameInputBorder) - 1
 	b.size = fyne.NewSize(h, h)
+}
+
+// spinnerEntry is the entry widget for the Spinner widget.
+type spinnerEntry struct {
+	NumericalEntry
+
+	spinner *Spinner
+}
+
+// newSpinnerEntry creates a spinnerEntry widget.
+func newSpinnerEntry() *spinnerEntry {
+	e := &spinnerEntry{}
+	e.ExtendBaseWidget(e)
+
+	return e
+}
+
+// MinSize returns the minimum size of the spinnerEntry.
+func (e *spinnerEntry) MinSize() fyne.Size {
+	return fyne.NewSize(150, e.NumericalEntry.MinSize().Height)
 }
 
 var _ fyne.Disableable = (*Spinner)(nil)
 
+// Spinner is the Spinner widget.
 type Spinner struct {
 	widget.DisableableWidget
 
+	entry      *spinnerEntry
 	upButton   *spinnerButton
 	downButton *spinnerButton
 }
@@ -82,9 +98,10 @@ func NewSpinner() *Spinner {
 	s := &Spinner{}
 	s.ExtendBaseWidget(s)
 
-	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp),
+	s.entry = newSpinnerEntry()
+	s.upButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropUp),
 		s.upButtonClicked)
-	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown),
+	s.downButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropDown),
 		s.downButtonClicked)
 
 	return s
@@ -94,7 +111,7 @@ func NewSpinner() *Spinner {
 // renderer
 func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 	r := &spinnerRenderer{spinner: s}
-	r.objects = []fyne.CanvasObject{s.upButton, s.downButton}
+	r.objects = []fyne.CanvasObject{s.entry, s.upButton, s.downButton}
 	return r
 }
 
@@ -102,7 +119,10 @@ func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 // calculated based on the maximum width that the spinner's value would require
 // based on it's format.
 func (s *Spinner) MinSize() fyne.Size {
-	return fyne.NewSize(s.upButton.MinSize().Width, s.upButton.MinSize().Height*2)
+	w := s.entry.MinSize().Width + s.upButton.MinSize().Width
+	h := s.entry.MinSize().Height
+
+	return fyne.NewSize(w, h)
 }
 
 // downButtonClicked handles Tap events for the spinner's down button.
@@ -126,16 +146,19 @@ func (r *spinnerRenderer) Layout(size fyne.Size) {
 	th := r.spinner.Theme()
 	borderSize := th.Size(theme.SizeNameInputBorder)
 	padding := th.Size(theme.SizeNameInnerPadding)
-
 	buttonSize := r.spinner.upButton.MinSize()
 
-	xPos := float32(0.)
-	yPos := padding / 2
+	xPos := float32(0)
+	yPos := float32(0)
+	r.spinner.entry.Resize(r.spinner.entry.MinSize())
+	r.spinner.entry.Move(fyne.NewPos(xPos, yPos))
 
+	xPos += r.spinner.entry.Size().Width + padding/4
+	yPos += borderSize
 	r.spinner.upButton.Resize(buttonSize)
 	r.spinner.upButton.Move(fyne.NewPos(xPos, yPos))
 
-	yPos += r.spinner.upButton.Size().Height + borderSize
+	yPos = r.spinner.entry.Size().Height - r.spinner.downButton.Size().Height - borderSize
 	r.spinner.downButton.Resize(buttonSize)
 	r.spinner.downButton.Move(fyne.NewPos(xPos, yPos))
 
