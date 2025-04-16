@@ -166,3 +166,19 @@ func TestSpinner_SetMinMaxStep(t *testing.T) {
 	assert.True(t, s.initialized)
 	assert.False(t, s.Disabled())
 }
+
+func TestSpinnerEntry_Validator(t *testing.T) {
+	s := NewSpinner(4, 10, 5, 1)
+	assert.Nil(t, s.entry.Validator("4"))
+	assert.Nil(t, s.entry.Validator("4.5"))
+	assert.Nil(t, s.entry.Validator("5.123456"))
+	err := s.entry.Validator("-s.5")
+	assert.NotNil(t, err)
+	assert.Equal(t, "value is not a number", err.Error())
+	err = s.entry.Validator("11")
+	assert.NotNil(t, err)
+	assert.Equal(t, "value is not between min and max", err.Error())
+	err = s.entry.Validator("3")
+	assert.NotNil(t, err)
+	assert.Equal(t, "value is not between min and max", err.Error())
+}

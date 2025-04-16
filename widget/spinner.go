@@ -1,7 +1,9 @@
 package widget
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
@@ -65,14 +67,45 @@ func (b *spinnerButton) setButtonProperties(resource fyne.Resource, onTapped fun
 // spinnerEntry is the entry widget for the Spinner widget.
 type spinnerEntry struct {
 	NumericalEntry
+
+	spinner *Spinner
 }
 
 // newSpinnerEntry creates a spinnerEntry widget.
-func newSpinnerEntry() *spinnerEntry {
-	e := &spinnerEntry{}
+func newSpinnerEntry(s *Spinner) *spinnerEntry {
+	e := &spinnerEntry{spinner: s}
+	e.Validator = e.validate
 	e.ExtendBaseWidget(e)
 
 	return e
+}
+
+// validate tests the text in the entry widget of the spinner to ensure that
+// it represents a number and is between the spinner's min and max values.
+func (e *spinnerEntry) validate(text string) error {
+	if !e.isNumber(text) {
+		return errors.New("value is not a number")
+	}
+	if e.AllowFloat {
+		v, err := strconv.ParseFloat(text, 64)
+		if err != nil {
+			return err
+		}
+		if v < e.spinner.min || v > e.spinner.max {
+			return errors.New("value is not between min and max")
+		}
+		return nil
+
+	} else {
+		v, err := strconv.Atoi(text)
+		if err != nil {
+			return err
+		}
+		if v < int(e.spinner.min) || v > int(e.spinner.max) {
+			return errors.New("value is not between min and max")
+		}
+		return nil
+	}
 }
 
 // MinSize returns the minimum size of the spinnerEntry.
@@ -139,7 +172,7 @@ func NewSpinner(min, max, step float64, decPlaces uint) *Spinner {
 		decimalPlaces: decPlaces, initialized: true}
 	s.ExtendBaseWidget(s)
 
-	s.entry = newSpinnerEntry()
+	s.entry = newSpinnerEntry(s)
 	s.upButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropUp),
 		s.upButtonClicked)
 	s.downButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropDown),
@@ -166,11 +199,14 @@ func NewSpinner(min, max, step float64, decPlaces uint) *Spinner {
 func NewSpinnerUninitialized(decPlaces uint) *Spinner {
 	s := &Spinner{decimalPlaces: decPlaces, initialized: false}
 	s.ExtendBaseWidget(s)
-	s.entry = newSpinnerEntry()
+	s.entry = newSpinnerEntry(s)
 	s.upButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropUp),
 		s.upButtonClicked)
 	s.downButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropDown),
 		s.downButtonClicked)
+	if s.decimalPlaces != 0 {
+		s.entry.AllowFloat = true
+	}
 	s.Disable()
 	return s
 }

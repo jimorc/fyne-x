@@ -26,11 +26,15 @@ func main() {
 	i2Spinner := xwidget.NewSpinnerUninitialized(1)
 	i2C := container.NewGridWithColumns(2, i2Label, i2Spinner)
 
+	f2Button := widget.NewButton("Set FloatSpinner to 28", func() {
+		f2Spinner.SetValue(28)
+	})
+
 	i2Button := widget.NewButton("Set MinMaxStep(-1, 5, 1.5)", func() {
 		i2Spinner.SetMinMaxStep(-1, 5, 1.5)
 	})
 
-	c := container.NewVBox(intC, f2C, i2C, widget.NewSeparator(), i2Button)
+	c := container.NewVBox(intC, f2C, i2C, widget.NewSeparator(), f2Button, i2Button)
 	w.SetContent(c)
 	w.ShowAndRun()
 }
