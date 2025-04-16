@@ -91,6 +91,7 @@ type Spinner struct {
 	max           float64
 	step          float64
 	decimalPlaces uint
+	initialized   bool
 
 	entry      *spinnerEntry
 	upButton   *spinnerButton
@@ -134,8 +135,10 @@ func NewSpinner(min, max, step float64, decPlaces uint) *Spinner {
 		return nil
 	}
 
-	s := &Spinner{min: min, max: max, step: step, decimalPlaces: decPlaces}
+	s := &Spinner{min: min, max: max, step: step,
+		decimalPlaces: decPlaces, initialized: true}
 	s.ExtendBaseWidget(s)
+	s.Enable()
 
 	s.entry = newSpinnerEntry()
 	s.upButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropUp),
@@ -150,6 +153,25 @@ func NewSpinner(min, max, step float64, decPlaces uint) *Spinner {
 		s.entry.AllowFloat = true
 	}
 	s.SetValue(s.min)
+	return s
+}
+
+// NewSpinnerUnitialized returns an uninitialized Spinner object.
+//
+// An uninitialized Spinner object is useful when you need to create a Spinner
+// but the initial settings are unknown.
+// Calling Enable on an unitialized spinner will not enable the spinner; you
+// must first call SetMinMaxStep to initialize the spinner values before enabling
+// the spinner widget.
+func NewSpinnerUninitialized(decPlaces uint) *Spinner {
+	s := &Spinner{decimalPlaces: decPlaces, initialized: false}
+	s.ExtendBaseWidget(s)
+	s.entry = newSpinnerEntry()
+	s.upButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropUp),
+		s.upButtonClicked)
+	s.downButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropDown),
+		s.downButtonClicked)
+	s.Disable()
 	return s
 }
 
@@ -180,6 +202,13 @@ func (s *Spinner) MinSize() fyne.Size {
 // value is set to min. If the value is > max, then the value is set
 // to max. The spinner's buttons are enabled or disabled as appropriate.
 func (s *Spinner) SetValue(value float64) {
+	if s.Disabled() {
+		return
+	}
+	if !s.initialized {
+		fyne.LogError("Trying to set value of uninitialized spinner", nil)
+		return
+	}
 	s.value = value
 	if value <= s.min {
 		s.value = s.min
@@ -199,11 +228,17 @@ func (s *Spinner) SetValue(value float64) {
 
 // downButtonClicked handles Tap events for the spinner's down button.
 func (s *Spinner) downButtonClicked() {
+	if s.Disabled() {
+		return
+	}
 	s.SetValue(s.value - s.step)
 }
 
 // upButtonClicked handles Tap events for the spinner's up button.
 func (s *Spinner) upButtonClicked() {
+	if s.Disabled() {
+		return
+	}
 	s.SetValue(s.value + s.step)
 }
 
