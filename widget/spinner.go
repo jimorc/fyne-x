@@ -220,6 +220,19 @@ func (s *Spinner) MinSize() fyne.Size {
 	return fyne.NewSize(w, h)
 }
 
+// SetMinMaxStep sets the spinner's min, max and step values. It also
+// sets the value to min, and enables the spinner.
+func (s *Spinner) SetMinMaxStep(min, max, step float64) {
+	s.min = min
+	s.max = max
+	s.step = step
+	s.initialized = true
+	s.entry.AllowNegative = s.min < 0
+	s.Enable()
+	s.SetValue(s.min)
+	s.Refresh()
+}
+
 // SetValue sets the spinner value. If the value is < min, then the
 // value is set to min. If the value is > max, then the value is set
 // to max. The spinner's buttons are enabled or disabled as appropriate.

@@ -21,12 +21,16 @@ func main() {
 	f2Spinner := xwidget.NewSpinner(-2, 25, 1.5, 2)
 	f2C := container.NewGridWithColumns(2, f2Label, f2Spinner)
 
-	i2Label := widget.NewLabel("Uninitialized Spinner (0):")
+	i2Label := widget.NewLabel("Uninitialized Spinner (1):")
 	i2Label.Alignment = fyne.TextAlignTrailing
-	i2Spinner := xwidget.NewSpinnerUninitialized(0)
+	i2Spinner := xwidget.NewSpinnerUninitialized(1)
 	i2C := container.NewGridWithColumns(2, i2Label, i2Spinner)
 
-	c := container.NewVBox(intC, f2C, i2C)
+	i2Button := widget.NewButton("Set MinMaxStep(-1, 5, 1.5)", func() {
+		i2Spinner.SetMinMaxStep(-1, 5, 1.5)
+	})
+
+	c := container.NewVBox(intC, f2C, i2C, widget.NewSeparator(), i2Button)
 	w.SetContent(c)
 	w.ShowAndRun()
 }

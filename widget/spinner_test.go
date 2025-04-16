@@ -138,3 +138,31 @@ func TestSpinnerUninitialized_Enable(t *testing.T) {
 	assert.True(t, s.upButton.Disabled())
 	assert.True(t, s.downButton.Disabled())
 }
+
+func TestSpinnerUninitialized_SetMinMaxStep(t *testing.T) {
+	s := NewSpinnerUninitialized(0)
+	s.SetMinMaxStep(4, 10, 5)
+	assert.Equal(t, float64(4), s.min)
+	assert.Equal(t, float64(10), s.max)
+	assert.Equal(t, float64(5), s.step)
+	assert.Equal(t, uint(0), s.decimalPlaces)
+	assert.False(t, s.entry.AllowFloat)
+	assert.False(t, s.entry.AllowNegative)
+	assert.Equal(t, float64(4), s.value)
+	assert.True(t, s.initialized)
+	assert.False(t, s.Disabled())
+}
+
+func TestSpinner_SetMinMaxStep(t *testing.T) {
+	s := NewSpinner(4, 10, 5, 1)
+	s.SetMinMaxStep(-1, 5, 0.75)
+	assert.Equal(t, float64(-1), s.min)
+	assert.Equal(t, float64(5), s.max)
+	assert.Equal(t, float64(0.75), s.step)
+	assert.Equal(t, uint(1), s.decimalPlaces)
+	assert.True(t, s.entry.AllowFloat)
+	assert.True(t, s.entry.AllowNegative)
+	assert.Equal(t, float64(-1), s.value)
+	assert.True(t, s.initialized)
+	assert.False(t, s.Disabled())
+}
