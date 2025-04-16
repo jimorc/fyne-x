@@ -138,13 +138,13 @@ func NewSpinner(min, max, step float64, decPlaces uint) *Spinner {
 	s := &Spinner{min: min, max: max, step: step,
 		decimalPlaces: decPlaces, initialized: true}
 	s.ExtendBaseWidget(s)
-	s.Enable()
 
 	s.entry = newSpinnerEntry()
 	s.upButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropUp),
 		s.upButtonClicked)
 	s.downButton = newSpinnerButton(s, theme.Icon(theme.IconNameArrowDropDown),
 		s.downButtonClicked)
+	s.Enable()
 
 	if s.min < 0 {
 		s.entry.AllowNegative = true
@@ -181,6 +181,24 @@ func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 	r := &spinnerRenderer{spinner: s}
 	r.objects = []fyne.CanvasObject{s.entry, s.upButton, s.downButton}
 	return r
+}
+
+// Disable disables the spinner and all of its components.
+func (s *Spinner) Disable() {
+	s.DisableableWidget.Disable()
+	s.entry.Disable()
+	s.upButton.Disable()
+	s.downButton.Disable()
+	s.Refresh()
+}
+
+// Enable enables the spinner and all of its components.
+func (s *Spinner) Enable() {
+	s.DisableableWidget.Enable()
+	s.entry.Enable()
+	s.upButton.Enable()
+	s.downButton.Enable()
+	s.Refresh()
 }
 
 // GetValue returns the value of the spinner.
