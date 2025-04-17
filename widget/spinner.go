@@ -3,9 +3,11 @@ package widget
 import (
 	"errors"
 	"fmt"
+	"image/color"
 	"strconv"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -86,6 +88,38 @@ func newSpinnerEntry(s *Spinner) *spinnerEntry {
 	return e
 }
 
+// MinSize calculates the minimum size required for the spinner entry.
+//
+// It determines the minimum size based on the minimum and maximum values
+// of the spinner, taking into account the number of decimal places.
+// If the spinner is not initialized, it returns the minimum size of the
+// underlying NumericalEntry.
+func (e *spinnerEntry) MinSize() fyne.Size {
+	size := e.NumericalEntry.MinSize()
+	th := e.spinner.Theme()
+	iconSpace := th.Size(theme.SizeNameInlineIcon)
+	padding := th.Size(theme.SizeNameInnerPadding)
+	borderSize := th.Size(theme.SizeNameInputBorder)
+	minText := fmt.Sprintf("%d", int(e.spinner.min))
+	maxText := fmt.Sprintf("%d", int(e.spinner.max))
+	if e.spinner.decimalPlaces != 0 {
+		format := fmt.Sprintf("%%.%df", e.spinner.decimalPlaces)
+		minText = fmt.Sprintf(format, e.spinner.min)
+		maxText = fmt.Sprintf(format, e.spinner.max)
+	}
+	tSize := e.minSizeForTextSize(e.Text)
+	minSize := e.minSizeForTextSize(minText)
+	maxSize := e.minSizeForTextSize(maxText)
+	wSz := tSize.Width
+	if minSize.Width > wSz {
+		wSz = minSize.Width
+	}
+	if maxSize.Width > wSz {
+		wSz = maxSize.Width
+	}
+	return fyne.NewSize(wSz+iconSpace+padding*2+borderSize, size.Height)
+}
+
 // TypedShortcut handles the entry's shortcut keys.
 func (e *spinnerEntry) TypedShortcut(shortcut fyne.Shortcut) {
 	if !e.spinner.Disabled() {
@@ -113,6 +147,13 @@ func (e *spinnerEntry) TypedKey(key *fyne.KeyEvent) {
 			e.NumericalEntry.TypedKey(key)
 		}
 	}
+}
+
+func (e *spinnerEntry) minSizeForTextSize(text string) fyne.Size {
+	t := canvas.NewText(text, color.Black)
+	textSize, _ := fyne.CurrentApp().Driver().RenderedTextSize(t.Text,
+		t.TextSize, t.TextStyle, t.FontSource)
+	return textSize
 }
 
 // registerShortcuts registers the shortcuts for the spinnerEntry widget.
@@ -153,11 +194,6 @@ func (e *spinnerEntry) validate(text string) error {
 		}
 		return nil
 	}
-}
-
-// MinSize returns the minimum size of the spinnerEntry.
-func (e *spinnerEntry) MinSize() fyne.Size {
-	return fyne.NewSize(150, e.NumericalEntry.MinSize().Height)
 }
 
 var _ fyne.Disableable = (*Spinner)(nil)
