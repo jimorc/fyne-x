@@ -42,3 +42,4 @@ tags
 # Persistent undo
 [._]*.un~
 *.exe
+*.sqlite
