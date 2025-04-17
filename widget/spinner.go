@@ -117,7 +117,8 @@ func (e *spinnerEntry) MinSize() fyne.Size {
 	if maxSize.Width > wSz {
 		wSz = maxSize.Width
 	}
-	return fyne.NewSize(wSz+iconSpace+padding*2+borderSize, size.Height)
+	wSz += iconSpace + padding*3 + borderSize*2
+	return fyne.NewSize(wSz, size.Height)
 }
 
 // TypedShortcut handles the entry's shortcut keys.
@@ -415,7 +416,11 @@ func (r *spinnerRenderer) Layout(size fyne.Size) {
 
 	xPos := float32(0)
 	yPos := float32(0)
-	r.spinner.entry.Resize(r.spinner.entry.MinSize())
+	w := size.Width - r.spinner.upButton.MinSize().Width - padding
+	if w < r.spinner.entry.MinSize().Width {
+		w = r.spinner.entry.MinSize().Width
+	}
+	r.spinner.entry.Resize(fyne.NewSize(w, r.spinner.entry.MinSize().Height))
 	r.spinner.entry.Move(fyne.NewPos(xPos, yPos))
 
 	xPos += r.spinner.entry.Size().Width + padding/4

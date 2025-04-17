@@ -24,7 +24,7 @@ func main() {
 	i2Label := widget.NewLabel("Uninitialized Spinner (1):")
 	i2Label.Alignment = fyne.TextAlignTrailing
 	i2Spinner := xwidget.NewSpinnerUninitialized(1)
-	i2C := container.NewGridWithColumns(2, i2Label, i2Spinner)
+	i2C := container.NewHBox(i2Label, i2Spinner)
 
 	f2Button := widget.NewButton("Set FloatSpinner to 28", func() {
 		f2Spinner.SetValue(28)
