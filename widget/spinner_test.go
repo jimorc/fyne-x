@@ -1,6 +1,8 @@
 package widget
 
 import (
+	"errors"
+	"strconv"
 	"testing"
 
 	"fyne.io/fyne/v2"
@@ -121,16 +123,6 @@ func TestSpinner_Disable(t *testing.T) {
 	assert.True(t, s.downButton.Disabled())
 }
 
-func TestSpinner_Enable(t *testing.T) {
-	s := NewSpinner(4, 10, 5, 0)
-	s.Disable()
-	s.Enable()
-	assert.False(t, s.Disabled())
-	assert.False(t, s.entry.Disabled())
-	assert.False(t, s.upButton.Disabled())
-	assert.False(t, s.downButton.Disabled())
-}
-
 func TestSpinnerUninitialized_Enable(t *testing.T) {
 	s := NewSpinnerUninitialized(0)
 	s.Enable()
@@ -168,22 +160,6 @@ func TestSpinner_SetMinMaxStep(t *testing.T) {
 	assert.False(t, s.Disabled())
 }
 
-func TestSpinnerEntry_Validator(t *testing.T) {
-	s := NewSpinner(4, 10, 5, 1)
-	assert.Nil(t, s.entry.Validator("4"))
-	assert.Nil(t, s.entry.Validator("4.5"))
-	assert.Nil(t, s.entry.Validator("5.123456"))
-	err := s.entry.Validator("-s.5")
-	assert.NotNil(t, err)
-	assert.Equal(t, "value is not a number", err.Error())
-	err = s.entry.Validator("11")
-	assert.NotNil(t, err)
-	assert.Equal(t, "value is not between min and max", err.Error())
-	err = s.entry.Validator("3")
-	assert.NotNil(t, err)
-	assert.Equal(t, "value is not between min and max", err.Error())
-}
-
 func TestSpinnerEntryUpKey(t *testing.T) {
 	s := NewSpinner(4, 10, 5, 1)
 	s.entry.Tapped(&fyne.PointEvent{})
@@ -213,4 +189,213 @@ func TestSpinnerEntryTypedShortcut(t *testing.T) {
 	assert.Equal(t, float64(1), s.GetValue())
 	s.entry.TypedShortcut(&desktop.CustomShortcut{KeyName: fyne.KeyUp, Modifier: fyne.KeyModifierControl})
 	assert.Equal(t, float64(10), s.GetValue())
+}
+
+func TestSpinnerEntry_validate(t *testing.T) {
+	testCases := []struct {
+		name        string
+		allowFloat  bool
+		min         float64
+		max         float64
+		text        string
+		expectedErr error
+	}{
+		{
+			name:        "Valid integer within range",
+			allowFloat:  false,
+			min:         0,
+			max:         10,
+			text:        "5",
+			expectedErr: nil,
+		},
+		{
+			name:        "Valid float within range",
+			allowFloat:  true,
+			min:         0.0,
+			max:         10.0,
+			text:        "5.5",
+			expectedErr: nil,
+		},
+		{
+			name:        "Integer equal to min",
+			allowFloat:  false,
+			min:         0,
+			max:         10,
+			text:        "0",
+			expectedErr: nil,
+		},
+		{
+			name:        "Integer equal to max",
+			allowFloat:  false,
+			min:         0,
+			max:         10,
+			text:        "10",
+			expectedErr: nil,
+		},
+		{
+			name:        "Float equal to min",
+			allowFloat:  true,
+			min:         0.0,
+			max:         10.0,
+			text:        "0.0",
+			expectedErr: nil,
+		},
+		{
+			name:        "Float equal to max",
+			allowFloat:  true,
+			min:         0.0,
+			max:         10.0,
+			text:        "10.0",
+			expectedErr: nil,
+		},
+		{
+			name:        "Integer below min",
+			allowFloat:  false,
+			min:         1,
+			max:         10,
+			text:        "0",
+			expectedErr: errors.New("value is not between min and max"),
+		},
+		{
+			name:        "Integer above max",
+			allowFloat:  false,
+			min:         0,
+			max:         9,
+			text:        "10",
+			expectedErr: errors.New("value is not between min and max"),
+		},
+		{
+			name:        "Float below min",
+			allowFloat:  true,
+			min:         1.0,
+			max:         10.0,
+			text:        "0.9",
+			expectedErr: errors.New("value is not between min and max"),
+		},
+		{
+			name:        "Float above max",
+			allowFloat:  true,
+			min:         0.0,
+			max:         9.0,
+			text:        "9.1",
+			expectedErr: errors.New("value is not between min and max"),
+		},
+		{
+			name:        "Invalid integer input",
+			allowFloat:  false,
+			min:         0,
+			max:         10,
+			text:        "5a",
+			expectedErr: errors.New("value is not a number"),
+		},
+		{
+			name:        "Invalid float input",
+			allowFloat:  true,
+			min:         0.0,
+			max:         10.0,
+			text:        "5.5b",
+			expectedErr: errors.New("value is not a number"),
+		},
+		{
+			name:        "Empty input",
+			allowFloat:  true,
+			min:         0.0,
+			max:         10.0,
+			text:        "",
+			expectedErr: errors.New("value is not a number"),
+		},
+		{
+			name:        "Large float value",
+			allowFloat:  true,
+			min:         0.0,
+			max:         1e10,
+			text:        "1e11",
+			expectedErr: errors.New("value is not between min and max"),
+		},
+		{
+			name:        "Large int value",
+			allowFloat:  false,
+			min:         0,
+			max:         1000,
+			text:        strconv.Itoa(1001),
+			expectedErr: errors.New("value is not between min and max"),
+		},
+		{
+			name:        "Negative float value with min 0",
+			allowFloat:  true,
+			min:         0.0,
+			max:         10.0,
+			text:        "-1.0",
+			expectedErr: errors.New("value is not between min and max"),
+		},
+		{
+			name:        "Negative int value with min 0",
+			allowFloat:  false,
+			min:         0,
+			max:         10,
+			text:        "-1",
+			expectedErr: errors.New("value is not between min and max"),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			e := &spinnerEntry{spinner: &Spinner{min: tc.min, max: tc.max}}
+			e.AllowFloat = tc.allowFloat
+			err := e.validate(tc.text)
+
+			if tc.expectedErr != nil {
+				if err == nil {
+					t.Errorf("Expected error: %v, but got nil", tc.expectedErr)
+				} else if err.Error() != tc.expectedErr.Error() {
+					t.Errorf("Expected error: %v, but got: %v", tc.expectedErr, err)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Expected no error, but got: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func TestSpinner_Enable(t *testing.T) {
+	s := NewSpinner(3, 10, 1, 1)
+	s.initialized = true
+	s.Disable()
+
+	s.Enable()
+
+	if s.Disabled() {
+		t.Error("Spinner should be enabled")
+	}
+	if s.entry.Disabled() {
+		t.Error("Entry should be enabled")
+	}
+	if s.upButton.Disabled() {
+		t.Error("Up button should be enabled")
+	}
+	if s.downButton.Disabled() {
+		t.Error("Down button should be enabled")
+	}
+}
+
+func TestSpinner_Enable_Uninitialized(t *testing.T) {
+	s := NewSpinnerUninitialized(2)
+	s.Enable()
+	if !s.Disabled() {
+		t.Error("Spinner should be disabled")
+	}
+	if !s.entry.Disabled() {
+		t.Error("Entry should be disabled")
+	}
+	if !s.upButton.Disabled() {
+		t.Error("Up button should be disabled")
+	}
+	if !s.downButton.Disabled() {
+		t.Error("Down button should be disabled")
+	}
+	if s.initialized {
+		t.Error("Spinner should not be initialized")
+	}
 }
