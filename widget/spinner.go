@@ -109,6 +109,8 @@ func (e *spinnerEntry) TypedKey(key *fyne.KeyEvent) {
 			e.spinner.upButtonClicked()
 		case fyne.KeyDown:
 			e.spinner.downButtonClicked()
+		default:
+			e.NumericalEntry.TypedKey(key)
 		}
 	}
 }
