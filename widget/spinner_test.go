@@ -1,6 +1,7 @@
 package widget
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -44,8 +45,9 @@ func TestNewSpinner_BadArgs(t *testing.T) {
 	s = NewSpinner(1., 5., 5., 0, nil)
 	assert.False(t, s.initialized, "spinner should not be initialized when step > max - min")
 
-	s = NewSpinner(1., 5., 5., 11, nil)
-	assert.False(t, s.initialized, "Did not panic with decPlaces > 10")
+	s = NewSpinner(1., 5., 2., 11, nil)
+	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), s.format)
+	assert.True(t, s.initialized)
 }
 
 func TestNewSpinnerWithData(t *testing.T) {
@@ -97,12 +99,14 @@ func TestNewSpinnerWithData_BadArgs(t *testing.T) {
 	s = NewSpinnerWithData(1., 5., 5., 0, boundValue)
 	assert.False(t, s.initialized, "spinner should not be initialized when step > max - min")
 
-	s = NewSpinnerWithData(1., 5., 5., 11, boundValue)
-	assert.False(t, s.initialized, "Did not panic with decPlaces > 10")
+	s = NewSpinnerWithData(1., 5., 2., 11, boundValue)
+	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), s.format)
+	assert.True(t, s.initialized)
 }
 
 func TestNewSpinnerUninitialized(t *testing.T) {
 	s := NewSpinnerUninitialized(0)
+	assert.False(t, s.initialized)
 	assert.True(t, s.Disabled())
 	s.Enable()
 	assert.True(t, s.Disabled())
@@ -111,7 +115,16 @@ func TestNewSpinnerUninitialized(t *testing.T) {
 	s.Enable()
 	assert.False(t, s.Disabled())
 
-	assert.Panics(t, func() { NewSpinnerUninitialized(11) }, "Did not panic with decPlaces > 10")
+	assert.Equal(t, "%d", s.format)
+	assert.True(t, s.initialized)
+
+	s = NewSpinnerUninitialized(4)
+	assert.False(t, s.initialized)
+	assert.Equal(t, "%.4f", s.format)
+
+	s = NewSpinnerUninitialized(maxDecimals + 2)
+	assert.False(t, s.initialized)
+	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), s.format)
 }
 
 func TestSpinner_SetValue(t *testing.T) {

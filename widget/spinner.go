@@ -14,6 +14,9 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// maxDecimals is the maximum number of decimal places that can be displayed.
+var maxDecimals uint = 6
+
 var _ fyne.Disableable = (*Spinner)(nil)
 var _ fyne.Focusable = (*Spinner)(nil)
 var _ fyne.Tappable = (*Spinner)(nil)
@@ -50,7 +53,8 @@ type Spinner struct {
 //		step is the amount that the spinner increases or decreases by. It must be > 0 and less than or equal to max - min.
 //	 	decPlaces is the number of decimal places to display the value in. This value must be
 //
-// <= 10. If this value is 0, then the spinner displays integer values
+// 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
+// If decPlaces == 0, then the value is displayed as an integer.
 //
 //	onChanged is the callback function that is called whenever the spinner value changes.
 func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64)) *Spinner {
@@ -73,9 +77,9 @@ func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64))
 		fyne.LogError("Spinner step must be less than or equal to max - min", nil)
 		s.initialized = false
 	}
-	if decPlaces > 10 {
-		fyne.LogError("spinner decPlaces must be <= 10", nil)
-		s.initialized = false
+	if decPlaces > maxDecimals {
+		fyne.LogError(fmt.Sprintf("spinner decPlaces must be <= %d", maxDecimals), nil)
+		decPlaces = maxDecimals
 	}
 	if decPlaces == 0 {
 		s.format = "%d"
@@ -100,12 +104,14 @@ func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64))
 //
 //	decPlaces is the number of decimal places to display the value in. This value must be
 //
-// <= 10. If this value is 0, then the spinner displays integer values
+// 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
+// If decPlaces == 0, then the value is displayed as an integer.
 func NewSpinnerUninitialized(decPlaces uint) *Spinner {
-	if decPlaces > 10 {
-		panic(errors.New("spinner decPlaces must be <= 10"))
-	}
 	s := &Spinner{}
+	if decPlaces > maxDecimals {
+		fyne.LogError(fmt.Sprintf("spinner decPlaces set to %d", maxDecimals), nil)
+		decPlaces = maxDecimals
+	}
 	if decPlaces == 0 {
 		s.format = "%d"
 	} else {
@@ -127,7 +133,8 @@ func NewSpinnerUninitialized(decPlaces uint) *Spinner {
 //		step is the amount that the spinner increases or decreases by. It must be > 0 and less than or equal to max - min.
 //	 	decPlaces is the number of decimal places to display the value in. This value must be
 //
-// <= 10. If this value is 0, then the spinner displays integer values
+// 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
+// If decPlaces == 0, then the value is displayed as an integer.
 //
 //	data is the value that is bound to the spinner value.
 func NewSpinnerWithData(min, max, step float64, decPlaces uint, data binding.Float) *Spinner {
