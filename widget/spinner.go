@@ -25,12 +25,11 @@ var _ fyne.Scrollable = (*Spinner)(nil)
 type Spinner struct {
 	widget.DisableableWidget
 
-	value  float64
-	min    float64
-	max    float64
-	step   float64
-	format string
-
+	value      float64
+	min        float64
+	max        float64
+	step       float64
+	format     string
 	upButton   *spinnerButton
 	downButton *spinnerButton
 
@@ -49,10 +48,12 @@ type Spinner struct {
 //		min is the minimum spinner value. It may be < 0.
 //		max is the maximum spinner value. It must be > min.
 //		step is the amount that the spinner increases or decreases by. It must be > 0 and less than or equal to max - min.
-//	 	format is the format to display the value in. This format should contain one of the following: "%d", "%+d", or "%.Xf"
-//		where X is an unsigned integer.
-//		onChanged is the callback function that is called whenever the spinner value changes.
-func NewSpinner(min, max, step float64, format string, onChanged func(float64)) *Spinner {
+//	 	decPlaces is the number of decimal places to display the value in. This value must be
+//
+// <= 10. If this value is 0, then the spinner displays integer values
+//
+//	onChanged is the callback function that is called whenever the spinner value changes.
+func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64)) *Spinner {
 	if min >= max {
 		panic(errors.New("spinner max must be greater than min value"))
 	}
@@ -62,12 +63,19 @@ func NewSpinner(min, max, step float64, format string, onChanged func(float64)) 
 	if step > max-min {
 		panic(errors.New("spinner step must be less than or equal to max - min"))
 	}
+	if decPlaces > 10 {
+		panic(errors.New("spinner decPlaces must be <= 10"))
+	}
 	s := &Spinner{
 		min:       min,
 		max:       max,
 		step:      step,
-		format:    format,
 		OnChanged: onChanged,
+	}
+	if decPlaces == 0 {
+		s.format = "%d"
+	} else {
+		s.format = fmt.Sprintf("%%.%df", decPlaces)
 	}
 	s.initialized = true
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
@@ -86,10 +94,19 @@ func NewSpinner(min, max, step float64, format string, onChanged func(float64)) 
 //
 // Params:
 //
-//	format is the format to display the value in. This format should contain one of the following: "%d", "%+d", or "%.Xf"
-//	where X is an unsigned integer.
-func NewSpinnerUninitialized(format string) *Spinner {
-	s := &Spinner{format: format}
+//	decPlaces is the number of decimal places to display the value in. This value must be
+//
+// <= 10. If this value is 0, then the spinner displays integer values
+func NewSpinnerUninitialized(decPlaces uint) *Spinner {
+	if decPlaces > 10 {
+		panic(errors.New("spinner decPlaces must be <= 10"))
+	}
+	s := &Spinner{}
+	if decPlaces == 0 {
+		s.format = "%d"
+	} else {
+		s.format = fmt.Sprintf("%%.%df", decPlaces)
+	}
 	s.initialized = false
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
@@ -104,11 +121,13 @@ func NewSpinnerUninitialized(format string) *Spinner {
 //		min is the minimum spinner value. It may be < 0.
 //		max is the maximum spinner value. It must be > min.
 //		step is the amount that the spinner increases or decreases by. It must be > 0 and less than or equal to max - min.
-//	 	format is the format to display the value in. This format should contain one of the following: "%d", "%+d", or "%.Xf"
-//		where X is an unsigned integer.
-//		data is the value that is bound to the spinner value.
-func NewSpinnerWithData(min, max, step float64, format string, data binding.Float) *Spinner {
-	s := NewSpinner(min, max, step, format, nil)
+//	 	decPlaces is the number of decimal places to display the value in. This value must be
+//
+// <= 10. If this value is 0, then the spinner displays integer values
+//
+//	data is the value that is bound to the spinner value.
+func NewSpinnerWithData(min, max, step float64, decPlaces uint, data binding.Float) *Spinner {
+	s := NewSpinner(min, max, step, decPlaces, nil)
 	s.Bind(data)
 	s.OnChanged = func(_ float64) {
 		s.binder.CallWithData(s.writeData)
