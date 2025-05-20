@@ -29,12 +29,23 @@ func TestNewSpinner(t *testing.T) {
 }
 
 func TestNewSpinner_BadArgs(t *testing.T) {
-	assert.Panics(t, func() { NewSpinner(5., 5., 1., 0, nil) }, "Did not panic with min == max")
-	assert.Panics(t, func() { NewSpinner(5., 4., 1., 0, nil) }, "Did not panic with min < max")
-	assert.Panics(t, func() { NewSpinner(1., 5., 0., 0, nil) }, "Did not panic with step = 0")
-	assert.Panics(t, func() { NewSpinner(1., 5., -5., 0, nil) }, "Did not panic with step = 0")
-	assert.Panics(t, func() { NewSpinner(1., 5., 5., 0, nil) }, "Did not panic with step > max - min")
-	assert.Panics(t, func() { NewSpinner(1., 5., 5., 11, nil) }, "Did not panic with decPlaces > 10")
+	s := NewSpinner(5., 5., 1., 0, nil)
+	assert.False(t, s.initialized, "spinner should not be initialized when max = min")
+
+	s = NewSpinner(5., 4., 1., 0, nil)
+	assert.False(t, s.initialized, "spinner should not be initialized when min > max")
+
+	s = NewSpinner(1., 5., 0., 0, nil)
+	assert.False(t, s.initialized, "spinner should not be initialized when step = 0")
+
+	s = NewSpinner(1., 5., -5., 0, nil)
+	assert.False(t, s.initialized, "spinner should not be initialized when step < 0")
+
+	s = NewSpinner(1., 5., 5., 0, nil)
+	assert.False(t, s.initialized, "spinner should not be initialized when step > max - min")
+
+	s = NewSpinner(1., 5., 5., 11, nil)
+	assert.False(t, s.initialized, "Did not panic with decPlaces > 10")
 }
 
 func TestNewSpinnerWithData(t *testing.T) {
@@ -71,12 +82,23 @@ func TestSpinner_Unbind(t *testing.T) {
 
 func TestNewSpinnerWithData_BadArgs(t *testing.T) {
 	boundValue := binding.NewFloat()
-	assert.Panics(t, func() { NewSpinnerWithData(5., 5., 1., 0, boundValue) }, "Did not panic with min == max")
-	assert.Panics(t, func() { NewSpinnerWithData(5., 4., 1., 0, boundValue) }, "Did not panic with min < max")
-	assert.Panics(t, func() { NewSpinnerWithData(1., 5., 0., 0, boundValue) }, "Did not panic with step = 0")
-	assert.Panics(t, func() { NewSpinnerWithData(1., 5., -5., 0, boundValue) }, "Did not panic with step = 0")
-	assert.Panics(t, func() { NewSpinnerWithData(1., 5., 5., 0, boundValue) }, "Did not panic with step > max - min")
-	assert.Panics(t, func() { NewSpinnerWithData(1., 5., 5., 11, boundValue) }, "Did not panic with decPlaces > 10")
+	s := NewSpinnerWithData(5., 5., 1., 0, boundValue)
+	assert.False(t, s.initialized, "spinner should not be initialized when max = min")
+
+	s = NewSpinnerWithData(5., 4., 1., 0, boundValue)
+	assert.False(t, s.initialized, "spinner should not be initialized when min > max")
+
+	s = NewSpinnerWithData(1., 5., 0., 0, boundValue)
+	assert.False(t, s.initialized, "spinner should not be initialized when step = 0")
+
+	s = NewSpinnerWithData(1., 5., -5., 0, boundValue)
+	assert.False(t, s.initialized, "spinner should not be initialized when step < 0")
+
+	s = NewSpinnerWithData(1., 5., 5., 0, boundValue)
+	assert.False(t, s.initialized, "spinner should not be initialized when step > max - min")
+
+	s = NewSpinnerWithData(1., 5., 5., 11, boundValue)
+	assert.False(t, s.initialized, "Did not panic with decPlaces > 10")
 }
 
 func TestNewSpinnerUninitialized(t *testing.T) {

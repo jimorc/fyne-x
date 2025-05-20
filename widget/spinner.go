@@ -54,30 +54,34 @@ type Spinner struct {
 //
 //	onChanged is the callback function that is called whenever the spinner value changes.
 func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64)) *Spinner {
-	if min >= max {
-		panic(errors.New("spinner max must be greater than min value"))
-	}
-	if step < 1 {
-		panic(errors.New("spinner step must be greater than 0"))
-	}
-	if step > max-min {
-		panic(errors.New("spinner step must be less than or equal to max - min"))
-	}
-	if decPlaces > 10 {
-		panic(errors.New("spinner decPlaces must be <= 10"))
-	}
 	s := &Spinner{
 		min:       min,
 		max:       max,
 		step:      step,
 		OnChanged: onChanged,
 	}
+	s.initialized = true
+	if min >= max {
+		fyne.LogError("Spinner max value must be greater than min value", nil)
+		s.initialized = false
+	}
+	if step < 1 {
+		fyne.LogError("Spinner step must be greater than 0", nil)
+		s.initialized = false
+	}
+	if step > max-min {
+		fyne.LogError("Spinner step must be less than or equal to max - min", nil)
+		s.initialized = false
+	}
+	if decPlaces > 10 {
+		fyne.LogError("spinner decPlaces must be <= 10", nil)
+		s.initialized = false
+	}
 	if decPlaces == 0 {
 		s.format = "%d"
 	} else {
 		s.format = fmt.Sprintf("%%.%df", decPlaces)
 	}
-	s.initialized = true
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
 	s.SetValue(s.min)
