@@ -35,12 +35,10 @@ type spinnerData struct {
 // 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
 // If decPlaces == 0, then the value is displayed as an integer.
 func newSpinnerData(spinnable Spinnable, min, max, step float64, decPlaces uint) *spinnerData {
-	d := &spinnerData{
-		s:    spinnable,
-		min:  min,
-		max:  max,
-		step: step,
-	}
+	d := newSpinnerDataUninitialized(spinnable, decPlaces)
+	d.min = min
+	d.max = max
+	d.step = step
 	d.initialized = true
 	if min >= max {
 		fyne.LogError("Spinner max value must be greater than min value", nil)
@@ -54,6 +52,18 @@ func newSpinnerData(spinnable Spinnable, min, max, step float64, decPlaces uint)
 		fyne.LogError("Spinner step must be less than or equal to max - min", nil)
 		d.initialized = false
 	}
+	if d.initialized {
+		d.value = min
+	}
+
+	return d
+}
+
+func newSpinnerDataUninitialized(spinnable Spinnable, decPlaces uint) *spinnerData {
+	d := &spinnerData{
+		s:           spinnable,
+		initialized: false,
+	}
 	if decPlaces > maxDecimals {
 		fyne.LogError(fmt.Sprintf("spinner decPlaces: %d too large. Set to %d", decPlaces, maxDecimals), nil)
 		decPlaces = maxDecimals
@@ -63,9 +73,5 @@ func newSpinnerData(spinnable Spinnable, min, max, step float64, decPlaces uint)
 	} else {
 		d.format = fmt.Sprintf("%%.%df", decPlaces)
 	}
-	if d.initialized {
-		d.value = min
-	}
-
 	return d
 }
