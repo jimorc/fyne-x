@@ -431,6 +431,23 @@ func (s *Spinner) updateFromData(data binding.DataItem) {
 	s.SetValue(val)
 }
 
+// validate validates the Spinner widget.
+func (s *Spinner) validate() error {
+	if !s.initialized {
+		if s.min >= s.max {
+			return errors.New("spinner max value must be greater than min value")
+		}
+		if s.step < 0 {
+			return errors.New("spinner step must be greater than 0")
+		}
+		if s.step > s.max-s.min {
+			return errors.New("spinner step must be less than or equal to max - min")
+		}
+		return errors.New("spinner has not been initialized")
+	}
+	return nil
+}
+
 // writeData updates the bound data item as the result of changes in the spinner value.
 func (s *Spinner) writeData(data binding.DataItem) {
 	if data == nil {
@@ -521,7 +538,11 @@ func (r *SpinnerRenderer) Refresh() {
 	r.box.FillColor = th.Color(bgColor, v)
 	r.box.CornerRadius = th.Size(theme.SizeNameInputRadius)
 	r.border.CornerRadius = r.box.CornerRadius
-	r.border.StrokeColor = th.Color(borderColor, v)
+	if r.spinner.validate() == nil {
+		r.border.StrokeColor = th.Color(borderColor, v)
+	} else {
+		r.border.StrokeColor = th.Color(theme.ColorNameError, v)
+	}
 
 	if strings.Contains(r.spinner.format, "%d") ||
 		strings.Contains(r.spinner.format, "%+d") {
