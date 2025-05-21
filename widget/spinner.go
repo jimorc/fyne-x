@@ -14,9 +14,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-// maxDecimals is the maximum number of decimal places that can be displayed.
-var maxDecimals uint = 6
-
 var _ fyne.Disableable = (*Spinner)(nil)
 var _ fyne.Focusable = (*Spinner)(nil)
 var _ fyne.Tappable = (*Spinner)(nil)

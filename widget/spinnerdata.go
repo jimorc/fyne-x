@@ -6,6 +6,9 @@ import (
 	"fyne.io/fyne/v2"
 )
 
+// maxDecimals is the maximum number of decimal places that can be displayed.
+var maxDecimals uint = 6
+
 // Spinnable is an interface for specifying if a widget is spinnable (i.e. is a spinner).
 type Spinnable interface {
 	getOnChanged() func(float64)
