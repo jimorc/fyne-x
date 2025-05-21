@@ -52,7 +52,7 @@ func (b *SpinnerButton) Move(pos fyne.Position) {
 //	pos is the position to check. This point is relative to the upper-left
 //
 // corner of the containing spinner widget.
-func (b *SpinnerButton) containsPoint(pos fyne.Position) bool {
+func (b *SpinnerButton) ContainsPoint(pos fyne.Position) bool {
 	if pos.X < b.position.X || pos.X > b.position.X+b.size.Width {
 		return false
 	} else if pos.Y < b.position.Y || pos.Y > b.position.Y+b.size.Height {

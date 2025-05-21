@@ -335,9 +335,9 @@ func (s *Spinner) Tapped(evt *fyne.PointEvent) {
 	if s.Disabled() {
 		return
 	}
-	if s.upButton.containsPoint(evt.Position) {
+	if s.upButton.ContainsPoint(evt.Position) {
 		s.upButton.Tapped(evt)
-	} else if s.downButton.containsPoint(evt.Position) {
+	} else if s.downButton.ContainsPoint(evt.Position) {
 		s.downButton.Tapped(evt)
 	}
 }
