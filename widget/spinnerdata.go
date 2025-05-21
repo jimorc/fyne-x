@@ -13,6 +13,8 @@ var maxDecimals uint = 6
 // Spinnable is an interface for specifying if a widget is spinnable (i.e. is a spinner).
 type Spinnable interface {
 	fyne.Disableable
+	// GetOnChanged retrieves the function to execute when the SpinnerData object changes
+	// its value.
 	GetOnChanged() func(float64)
 }
 
@@ -128,6 +130,8 @@ func (d *SpinnerData) Value() float64 {
 	return d.value
 }
 
+// valueChanged executes any onChanged functions in the SpinnerData and Spinnable objects.
+// This method is executed every time the value changes in the SpinnerData object.
 func (d *SpinnerData) valueChanged() {
 	if d.onChanged != nil {
 		d.onChanged(d.value)
