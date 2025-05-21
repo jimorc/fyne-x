@@ -193,3 +193,22 @@ func TestSpinnerData_ValueChanged(t *testing.T) {
 	assert.Equal(t, 3., val)
 	assert.Equal(t, 2, dVal)
 }
+
+func TestSpinnerData_SetMinMaxStep(t *testing.T) {
+	s := &spinner{}
+	d := NewSpinnerDataUninitialized(s, 0)
+	assert.False(t, d.initialized)
+	d.SetMinMaxStep(4, 1, 1)
+	assert.False(t, d.initialized)
+	assert.Equal(t, 4., d.min)
+	assert.Equal(t, 1., d.max)
+	assert.Equal(t, 1., d.step)
+	assert.Equal(t, 0., d.Value())
+
+	d.SetMinMaxStep(1, 4, 1)
+	assert.True(t, d.initialized)
+	assert.Equal(t, 1., d.min)
+	assert.Equal(t, 4., d.max)
+	assert.Equal(t, 1., d.step)
+	assert.Equal(t, 1., d.Value())
+}

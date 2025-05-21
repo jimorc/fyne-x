@@ -44,14 +44,7 @@ type SpinnerData struct {
 // If decPlaces == 0, then the value is displayed as an integer.
 func NewSpinnerData(spinnable Spinnable, min, max, step float64, decPlaces uint) *SpinnerData {
 	d := NewSpinnerDataUninitialized(spinnable, decPlaces)
-	d.min = min
-	d.max = max
-	d.step = step
-	d.initialized = d.Validate() == nil
-
-	if d.initialized {
-		d.value = min
-	}
+	d.SetMinMaxStep(min, max, step)
 	return d
 }
 
@@ -89,6 +82,28 @@ func (d *SpinnerData) Decrement() {
 // Increment increments the SpinnerData object's value by its step size.
 func (d *SpinnerData) Increment() {
 	d.SetValue(d.value + d.step)
+}
+
+// SetMinMaxStep sets the SpinnerData's minimum, maximum, and step values. The SpinnerData
+// object's value is set to minimum if the data passes validation.
+//
+// Params:
+//
+//	min is the minimum spinner value. It may be < 0.
+//	max is the maximum spinner value. It must be > min.
+//	step is the amount that the spinner increases or decreases by. It must be > 0 and less than or equal to max - min.
+//
+// If the previously set value is less than min, then the value is set to min.
+// If the previously set value is greater than max, then the value is set to max.
+func (d *SpinnerData) SetMinMaxStep(min, max, step float64) {
+	d.min = min
+	d.max = max
+	d.step = step
+	d.initialized = d.Validate() == nil
+	if d.initialized {
+		d.s.Enable()
+		d.SetValue(min)
+	}
 }
 
 // SetValue sets the value in the SpinnerData object.
