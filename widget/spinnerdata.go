@@ -59,6 +59,15 @@ func newSpinnerData(spinnable Spinnable, min, max, step float64, decPlaces uint)
 	return d
 }
 
+// NewSpinnerDataUninitialized creates an uninitialized spinnerData object.
+//
+// Params:
+//
+//	spinnable is the spinner object that this data is associated with.
+//	 decPlaces is the number of decimal places to display the value in. This value must be
+//
+// 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
+// If decPlaces == 0, then the value is displayed as an integer.
 func newSpinnerDataUninitialized(spinnable Spinnable, decPlaces uint) *spinnerData {
 	d := &spinnerData{
 		s:           spinnable,
