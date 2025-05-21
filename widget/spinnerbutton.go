@@ -10,7 +10,7 @@ import (
 )
 
 // spinnerButton is the widget used for buttons in Spinners.
-type spinnerButton struct {
+type SpinnerButton struct {
 	widget.Button
 
 	position fyne.Position
@@ -23,8 +23,8 @@ type spinnerButton struct {
 //
 //	resource is the resource to be used as the button icon.
 //	onTapped is the callback function for button clicks.
-func newSpinnerButton(resource fyne.Resource, onTapped func()) *spinnerButton {
-	b := &spinnerButton{}
+func newSpinnerButton(resource fyne.Resource, onTapped func()) *SpinnerButton {
+	b := &SpinnerButton{}
 	b.ExtendBaseWidget(b)
 	b.setButtonProperties(resource, onTapped)
 	return b
@@ -33,12 +33,12 @@ func newSpinnerButton(resource fyne.Resource, onTapped func()) *spinnerButton {
 // MinSize returns the minimum size of the button. Because the minimum size is a constant
 // based on the spinner height and theme properties, the minimum size is calculated when
 // the button is created.
-func (b *spinnerButton) MinSize() fyne.Size {
+func (b *SpinnerButton) MinSize() fyne.Size {
 	return fyne.NewSize(b.size.Height, b.size.Height)
 }
 
 // Move moves the button.
-func (b *spinnerButton) Move(pos fyne.Position) {
+func (b *SpinnerButton) Move(pos fyne.Position) {
 	b.position = pos
 	b.BaseWidget.Move(pos)
 }
@@ -52,7 +52,7 @@ func (b *spinnerButton) Move(pos fyne.Position) {
 //	pos is the position to check. This point is relative to the upper-left
 //
 // corner of the containing spinner widget.
-func (b *spinnerButton) containsPoint(pos fyne.Position) bool {
+func (b *SpinnerButton) containsPoint(pos fyne.Position) bool {
 	if pos.X < b.position.X || pos.X > b.position.X+b.size.Width {
 		return false
 	} else if pos.Y < b.position.Y || pos.Y > b.position.Y+b.size.Height {
@@ -70,7 +70,7 @@ func (b *spinnerButton) containsPoint(pos fyne.Position) bool {
 //		limit indicates whether the spinner's value is at the corresponding limit for this
 //	 button. For example, for an up button, the  limit should be true if value == max, and
 //	 for a down button, the limit should be true if value == min.
-func (b *spinnerButton) enableDisable(parentDisabled, limit bool) {
+func (b *SpinnerButton) enableDisable(parentDisabled, limit bool) {
 	if parentDisabled {
 		b.Disable()
 	} else {
@@ -87,7 +87,7 @@ func (b *spinnerButton) enableDisable(parentDisabled, limit bool) {
 //
 //	resource is the Resource for the button icon.
 //	onTapped is the function to be called when the button is tapped.
-func (b *spinnerButton) setButtonProperties(resource fyne.Resource, onTapped func()) {
+func (b *SpinnerButton) setButtonProperties(resource fyne.Resource, onTapped func()) {
 	b.Icon = resource
 	b.Text = ""
 	b.OnTapped = onTapped

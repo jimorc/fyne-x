@@ -30,8 +30,8 @@ type Spinner struct {
 	max        float64
 	step       float64
 	format     string
-	upButton   *spinnerButton
-	downButton *spinnerButton
+	upButton   *SpinnerButton
+	downButton *SpinnerButton
 
 	binder      basicBinder
 	initialized bool
