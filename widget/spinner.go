@@ -140,10 +140,6 @@ func NewSpinnerUninitialized(decPlaces uint) *Spinner {
 func NewSpinnerWithData(min, max, step float64, decPlaces uint, data binding.Float) *Spinner {
 	s := NewSpinner(min, max, step, decPlaces, nil)
 	s.Bind(data)
-	s.OnChanged = func(_ float64) {
-		s.binder.CallWithData(s.writeData)
-	}
-
 	return s
 }
 
@@ -153,6 +149,9 @@ func NewSpinnerWithData(min, max, step float64, decPlaces uint, data binding.Flo
 func (s *Spinner) Bind(data binding.Float) {
 	s.binder.SetCallback(s.updateFromData)
 	s.binder.Bind(data)
+	s.OnChanged = func(_ float64) {
+		s.binder.CallWithData(s.writeData)
+	}
 }
 
 // CreateRenderer is a private method to fyne which links this widget to its
@@ -388,6 +387,7 @@ func (s *Spinner) TypedRune(rune rune) {
 // The current value will remain at the last value of the data source.
 func (s *Spinner) Unbind() {
 	s.binder.Unbind()
+	s.OnChanged = nil
 }
 
 // requestFocus requests that this Spinner receive focus.
