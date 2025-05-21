@@ -25,7 +25,7 @@ type SpinnerData struct {
 	step        float64
 	format      string
 	initialized bool
-	OnChanged   func(float64)
+	onChanged   func(float64)
 }
 
 // NewSpinnerData creates and initializes a new spinnerData object.
@@ -103,9 +103,7 @@ func (d *SpinnerData) SetValue(value float64) {
 	if d.value <= d.min {
 		d.value = d.min
 	}
-	if d.OnChanged != nil {
-		d.OnChanged(d.value)
-	}
+	d.valueChanged()
 }
 
 // Validate validates the spinnerData settings.
@@ -128,4 +126,14 @@ func (d *SpinnerData) Validate() error {
 // Value retrieves the value set in the SpinnerData object.
 func (d *SpinnerData) Value() float64 {
 	return d.value
+}
+
+func (d *SpinnerData) valueChanged() {
+	if d.onChanged != nil {
+		d.onChanged(d.value)
+	}
+	spinnerOnChanged := d.s.GetOnChanged()
+	if spinnerOnChanged != nil {
+		spinnerOnChanged(d.value)
+	}
 }

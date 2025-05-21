@@ -6,6 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var val float64 = 0.
+var dVal int = 0
+
 type spinner struct {
 	disabled  bool
 	onChanged func(float64)
@@ -110,13 +113,19 @@ func TestSpinnerData_Validate(t *testing.T) {
 
 func TestSpinnerData_SetValue(t *testing.T) {
 	s := &spinner{}
+	s.onChanged = func(v float64) {
+		val = v
+	}
 	d := NewSpinnerData(s, 1, 4, 1, 0)
 	assert.Equal(t, 1., d.Value())
 	d.SetValue(2)
+	assert.Equal(t, 2., val)
 	assert.Equal(t, 2., d.Value())
 	d.SetValue(5)
+	assert.Equal(t, 4., val)
 	assert.Equal(t, 4., d.Value())
 	d.SetValue(0)
+	assert.Equal(t, 1., val)
 	assert.Equal(t, 1., d.Value())
 }
 
@@ -162,4 +171,25 @@ func TestSpinnerData_Increment(t *testing.T) {
 	d.s.Disable()
 	d.Increment()
 	assert.Equal(t, 1., d.Value())
+}
+
+func TestSpinnerData_ValueChanged(t *testing.T) {
+	dVal = 0
+	val = 0.
+	s := &spinner{}
+	d := NewSpinnerData(s, 1, 4, 1, 0)
+	assert.Equal(t, 0., val)
+	d.onChanged = func(float64) {
+		dVal++
+	}
+	d.SetValue(2)
+	assert.Equal(t, 0., val)
+	assert.Equal(t, 1, dVal)
+
+	s.onChanged = func(v float64) {
+		val = v
+	}
+	d.Increment()
+	assert.Equal(t, 3., val)
+	assert.Equal(t, 2, dVal)
 }
