@@ -119,3 +119,47 @@ func TestSpinnerData_SetValue(t *testing.T) {
 	d.SetValue(0)
 	assert.Equal(t, 1., d.Value())
 }
+
+func TestSpinnerData_Decrement(t *testing.T) {
+	s := &spinner{}
+	d := NewSpinnerData(s, 1, 4, 1, 0)
+	d.SetValue(4.)
+	d.Decrement()
+	assert.Equal(t, 3., d.Value())
+	d.Decrement()
+	assert.Equal(t, 2., d.Value())
+	d.Decrement()
+	assert.Equal(t, 1., d.Value())
+	d.Decrement()
+	assert.Equal(t, 1., d.Value())
+
+	d = NewSpinnerData(s, 1, 4, 2, 0)
+	d.SetValue(4.)
+	d.Decrement()
+	assert.Equal(t, 2., d.Value())
+	d.Decrement()
+	assert.Equal(t, 1., d.Value())
+
+	d.SetValue(4.)
+	d.s.Disable()
+	d.Decrement()
+	assert.Equal(t, 4., d.Value())
+}
+
+func TestSpinnerData_Increment(t *testing.T) {
+	s := &spinner{}
+	d := NewSpinnerData(s, 1, 4, 1, 0)
+	d.Increment()
+	assert.Equal(t, 2., d.Value())
+	d.Increment()
+	assert.Equal(t, 3., d.Value())
+	d.Increment()
+	assert.Equal(t, 4., d.Value())
+	d.Increment()
+	assert.Equal(t, 4., d.Value())
+
+	d.SetValue(1.)
+	d.s.Disable()
+	d.Increment()
+	assert.Equal(t, 1., d.Value())
+}

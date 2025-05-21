@@ -79,6 +79,16 @@ func NewSpinnerDataUninitialized(spinnable Spinnable, decPlaces uint) *SpinnerDa
 	return d
 }
 
+// Decrement decrements the SpinnerData object's value by its step size.
+func (d *SpinnerData) Decrement() {
+	d.SetValue(d.value - d.step)
+}
+
+// Increment increments the SpinnerData object's value by its step size.
+func (d *SpinnerData) Increment() {
+	d.SetValue(d.value + d.step)
+}
+
 // SetValue sets the value in the SpinnerData object.
 // If the value is less than object's min value, the value is set to min.
 // If the value is greater than object's max value, the value is set to max.
