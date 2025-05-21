@@ -16,7 +16,7 @@ type Spinnable interface {
 }
 
 // SpinnerData contains the data used by various spinner widget types.
-type spinnerData struct {
+type SpinnerData struct {
 	s           Spinnable
 	value       float64
 	min         float64
@@ -38,7 +38,7 @@ type spinnerData struct {
 //
 // 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
 // If decPlaces == 0, then the value is displayed as an integer.
-func newSpinnerData(spinnable Spinnable, min, max, step float64, decPlaces uint) *spinnerData {
+func newSpinnerData(spinnable Spinnable, min, max, step float64, decPlaces uint) *SpinnerData {
 	d := newSpinnerDataUninitialized(spinnable, decPlaces)
 	d.min = min
 	d.max = max
@@ -60,8 +60,8 @@ func newSpinnerData(spinnable Spinnable, min, max, step float64, decPlaces uint)
 //
 // 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
 // If decPlaces == 0, then the value is displayed as an integer.
-func newSpinnerDataUninitialized(spinnable Spinnable, decPlaces uint) *spinnerData {
-	d := &spinnerData{
+func newSpinnerDataUninitialized(spinnable Spinnable, decPlaces uint) *SpinnerData {
+	d := &SpinnerData{
 		s:           spinnable,
 		initialized: false,
 	}
@@ -78,7 +78,7 @@ func newSpinnerDataUninitialized(spinnable Spinnable, decPlaces uint) *spinnerDa
 }
 
 // Validate validates the spinnerData settings.
-func (d *spinnerData) Validate() error {
+func (d *SpinnerData) Validate() error {
 	if d.min == 0. && d.max == 0. && d.step == 0. {
 		return errors.New("spinner not initialized")
 	}
