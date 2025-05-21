@@ -7,7 +7,20 @@ import (
 )
 
 type spinner struct {
+	disabled  bool
 	onChanged func(float64)
+}
+
+func (s *spinner) Disable() {
+	s.disabled = true
+}
+
+func (s *spinner) Disabled() bool {
+	return s.disabled
+}
+
+func (s *spinner) Enable() {
+	s.disabled = false
 }
 
 func (s *spinner) GetOnChanged() func(float64) {
@@ -93,4 +106,16 @@ func TestSpinnerData_Validate(t *testing.T) {
 	err = d.Validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner step must be less than or equal to max - min", err.Error())
+}
+
+func TestSpinnerData_SetValue(t *testing.T) {
+	s := &spinner{}
+	d := NewSpinnerData(s, 1, 4, 1, 0)
+	assert.Equal(t, 1., d.Value())
+	d.SetValue(2)
+	assert.Equal(t, 2., d.Value())
+	d.SetValue(5)
+	assert.Equal(t, 4., d.Value())
+	d.SetValue(0)
+	assert.Equal(t, 1., d.Value())
 }

@@ -12,6 +12,7 @@ var maxDecimals uint = 6
 
 // Spinnable is an interface for specifying if a widget is spinnable (i.e. is a spinner).
 type Spinnable interface {
+	fyne.Disableable
 	GetOnChanged() func(float64)
 }
 
@@ -24,6 +25,7 @@ type SpinnerData struct {
 	step        float64
 	format      string
 	initialized bool
+	OnChanged   func(float64)
 }
 
 // NewSpinnerData creates and initializes a new spinnerData object.
@@ -77,6 +79,25 @@ func NewSpinnerDataUninitialized(spinnable Spinnable, decPlaces uint) *SpinnerDa
 	return d
 }
 
+// SetValue sets the value in the SpinnerData object.
+// If the value is less than object's min value, the value is set to min.
+// If the value is greater than object's max value, the value is set to max.
+func (d *SpinnerData) SetValue(value float64) {
+	if d.s.Disabled() {
+		return
+	}
+	d.value = value
+	if d.value >= d.max {
+		d.value = d.max
+	}
+	if d.value <= d.min {
+		d.value = d.min
+	}
+	if d.OnChanged != nil {
+		d.OnChanged(d.value)
+	}
+}
+
 // Validate validates the spinnerData settings.
 func (d *SpinnerData) Validate() error {
 	if d.min == 0. && d.max == 0. && d.step == 0. {
@@ -92,4 +113,9 @@ func (d *SpinnerData) Validate() error {
 		return errors.New("spinner step must be less than or equal to max - min")
 	}
 	return nil
+}
+
+// Value retrieves the value set in the SpinnerData object.
+func (d *SpinnerData) Value() float64 {
+	return d.value
 }
