@@ -12,7 +12,7 @@ var maxDecimals uint = 6
 
 // Spinnable is an interface for specifying if a widget is spinnable (i.e. is a spinner).
 type Spinnable interface {
-	getOnChanged() func(float64)
+	GetOnChanged() func(float64)
 }
 
 // SpinnerData contains the data used by various spinner widget types.

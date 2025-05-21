@@ -10,7 +10,7 @@ type spinner struct {
 	onChanged func(float64)
 }
 
-func (s *spinner) getOnChanged() func(float64) {
+func (s *spinner) GetOnChanged() func(float64) {
 	return s.onChanged
 }
 
