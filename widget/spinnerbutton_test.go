@@ -44,15 +44,15 @@ func TestSpinnerButton_ContainsPoint(t *testing.T) {
 
 func TestSpinnerButton_EnableDisable(t *testing.T) {
 	b := newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), nil)
-	b.enableDisable(false, false)
+	b.EnableDisable(false, false)
 	assert.False(t, b.Disabled())
 
-	b.enableDisable(true, false)
+	b.EnableDisable(true, false)
 	assert.True(t, b.Disabled())
 
-	b.enableDisable(false, true)
+	b.EnableDisable(false, true)
 	assert.True(t, b.Disabled())
 
-	b.enableDisable(true, true)
+	b.EnableDisable(true, true)
 	assert.True(t, b.Disabled())
 }

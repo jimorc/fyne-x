@@ -550,8 +550,8 @@ func (r *SpinnerRenderer) Refresh() {
 	r.text.Color = th.Color(fgColor, v)
 	r.text.Refresh()
 
-	r.spinner.upButton.enableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.max)
-	r.spinner.downButton.enableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.min)
+	r.spinner.upButton.EnableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.max)
+	r.spinner.downButton.EnableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.min)
 }
 
 // downButtonClicked handles tap events for the Spinner's down button.

@@ -70,7 +70,7 @@ func (b *SpinnerButton) ContainsPoint(pos fyne.Position) bool {
 //		limit indicates whether the spinner's value is at the corresponding limit for this
 //	 button. For example, for an up button, the  limit should be true if value == max, and
 //	 for a down button, the limit should be true if value == min.
-func (b *SpinnerButton) enableDisable(parentDisabled, limit bool) {
+func (b *SpinnerButton) EnableDisable(parentDisabled, limit bool) {
 	if parentDisabled {
 		b.Disable()
 	} else {
