@@ -54,17 +54,17 @@ func TestSpinnerData_InvalidArgs(t *testing.T) {
 
 func TestSpinnerDataUninitialized(t *testing.T) {
 	s := &spinner{}
-	d := newSpinnerDataUninitialized(s, 0)
+	d := NewSpinnerDataUninitialized(s, 0)
 	assert.False(t, d.initialized)
 	assert.Equal(t, "%d", d.format)
 
-	d = newSpinnerDataUninitialized(s, 1)
+	d = NewSpinnerDataUninitialized(s, 1)
 	assert.Equal(t, "%.1f", d.format)
 
-	d = newSpinnerDataUninitialized(s, 5)
+	d = NewSpinnerDataUninitialized(s, 5)
 	assert.Equal(t, "%.5f", d.format)
 
-	d = newSpinnerDataUninitialized(s, 10)
+	d = NewSpinnerDataUninitialized(s, 10)
 	assert.Equal(t, "%.6f", d.format)
 }
 
@@ -74,7 +74,7 @@ func TestSpinnerData_Validate(t *testing.T) {
 	err := d.Validate()
 	assert.Nil(t, err)
 
-	d = newSpinnerDataUninitialized(s, 0)
+	d = NewSpinnerDataUninitialized(s, 0)
 	err = d.Validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner not initialized", err.Error())
