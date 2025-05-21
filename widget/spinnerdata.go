@@ -1,6 +1,7 @@
 package widget
 
 import (
+	"errors"
 	"fmt"
 
 	"fyne.io/fyne/v2"
@@ -42,23 +43,11 @@ func newSpinnerData(spinnable Spinnable, min, max, step float64, decPlaces uint)
 	d.min = min
 	d.max = max
 	d.step = step
-	d.initialized = true
-	if min >= max {
-		fyne.LogError("Spinner max value must be greater than min value", nil)
-		d.initialized = false
-	}
-	if step < 1 {
-		fyne.LogError("Spinner step must be greater than 0", nil)
-		d.initialized = false
-	}
-	if step > max-min {
-		fyne.LogError("Spinner step must be less than or equal to max - min", nil)
-		d.initialized = false
-	}
+	d.initialized = d.Validate() == nil
+
 	if d.initialized {
 		d.value = min
 	}
-
 	return d
 }
 
@@ -86,4 +75,21 @@ func newSpinnerDataUninitialized(spinnable Spinnable, decPlaces uint) *spinnerDa
 		d.format = fmt.Sprintf("%%.%df", decPlaces)
 	}
 	return d
+}
+
+// Validate validates the spinnerData settings.
+func (d *spinnerData) Validate() error {
+	if d.min == 0. && d.max == 0. && d.step == 0. {
+		return errors.New("spinner not initialized")
+	}
+	if d.min >= d.max {
+		return errors.New("spinner max value must be greater than min value")
+	}
+	if d.step <= 0 {
+		return errors.New("spinner step must be greater than 0")
+	}
+	if d.step > d.max-d.min {
+		return errors.New("spinner step must be less than or equal to max - min")
+	}
+	return nil
 }
