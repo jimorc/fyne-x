@@ -286,28 +286,14 @@ func (s *Spinner) Tapped(evt *fyne.PointEvent) {
 	}
 	if s.upButton.ContainsPoint(evt.Position) {
 		s.upButton.Tapped(evt)
-		if s.data.AtMax() {
-			s.upButton.Disable()
-		} else {
-			s.upButton.Enable()
-		}
-		if s.data.AtMin() {
-			s.downButton.Disable()
-		} else {
-			s.downButton.Enable()
-		}
+		s.upButton.EnableDisable(false, s.data.AtMax())
+		s.downButton.Enable()
+		s.Refresh()
 	} else if s.downButton.ContainsPoint(evt.Position) {
 		s.downButton.Tapped(evt)
-		if s.data.AtMin() {
-			s.downButton.Disable()
-		} else {
-			s.downButton.Enable()
-		}
-		if s.data.AtMax() {
-			s.upButton.Disable()
-		} else {
-			s.upButton.Enable()
-		}
+		s.downButton.EnableDisable(false, s.data.AtMin())
+		s.upButton.Enable()
+		s.Refresh()
 	}
 }
 
@@ -505,11 +491,7 @@ func (s *Spinner) downButtonClicked() {
 	if s.Disabled() {
 		return
 	}
-	if s.data.AtMin() {
-		s.downButton.Disable()
-	} else {
-		s.downButton.Enable()
-	}
+	s.downButton.EnableDisable(false, s.data.AtMin())
 	s.upButton.Enable()
 	s.Refresh()
 }
@@ -520,11 +502,7 @@ func (s *Spinner) upButtonClicked() {
 	if s.Disabled() {
 		return
 	}
-	if s.data.AtMax() {
-		s.upButton.Disable()
-	} else {
-		s.upButton.Enable()
-	}
+	s.upButton.EnableDisable(false, s.data.AtMax())
 	s.downButton.Enable()
 	s.Refresh()
 }
