@@ -248,6 +248,7 @@ func (s *Spinner) Scrolled(evt *fyne.ScrollEvent) {
 }
 
 // SetMinMaxStep sets the widget's minimum, maximum, and step values.
+// You should call Refresh() after this call.
 //
 // Params:
 //
@@ -258,25 +259,7 @@ func (s *Spinner) Scrolled(evt *fyne.ScrollEvent) {
 // If the previously set value is less than min, then the value is set to min.
 // If the previously set value is greater than max, then the value is set to max.
 func (s *Spinner) SetMinMaxStep(min, max, step float64) {
-	if max <= min {
-		panic(errors.New("spinner max must be greater than min value"))
-	}
-	if step < 1 {
-		panic(errors.New("spinner step must be greater than 0"))
-	}
-	if step > max-min {
-		panic(errors.New("spinner step must be less than or equal to max - min"))
-	}
-	s.data.min = min
-	s.data.max = max
-	s.data.step = step
-	s.data.initialized = true
-
-	if s.data.value < s.data.min {
-		s.SetValue(s.data.min)
-	} else if s.data.value > s.data.max {
-		s.SetValue(s.data.max)
-	}
+	s.data.SetMinMaxStep(min, max, step)
 }
 
 // SetValue sets the spinner value. It ensures that the value is always >= min and
