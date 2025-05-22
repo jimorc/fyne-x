@@ -74,6 +74,16 @@ func NewSpinnerDataWithData(s Spinnable, min, max, step float64,
 
 }
 
+// AtMax returns true if the SpinnerData value is equal to max.
+func (d *SpinnerData) AtMax() bool {
+	return d.value >= d.max
+}
+
+// AtMin returns true if the SpinnerData value is equal to min.
+func (d *SpinnerData) AtMin() bool {
+	return d.value <= d.min
+}
+
 // Bind connects the specified data source to this Spinner widget.
 // The current value will be displayed and any changes in the data will cause the widget
 // to update.

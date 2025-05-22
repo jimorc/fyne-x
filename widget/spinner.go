@@ -148,6 +148,9 @@ func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 
 // Disable disables the Spinner and its buttons.
 func (s *Spinner) Disable() {
+	if s.Disabled() {
+		return
+	}
 	s.downButton.Disable()
 	s.upButton.Disable()
 	s.DisableableWidget.Disable()
@@ -159,12 +162,13 @@ func (s *Spinner) Enable() {
 	if !s.data.initialized {
 		return
 	}
-	if s.GetValue() < s.data.max {
+	if !s.data.AtMax() {
 		s.upButton.Enable()
 	}
-	if s.GetValue() > s.data.min {
+	if !s.data.AtMin() {
 		s.downButton.Enable()
 	}
+
 	s.DisableableWidget.Enable()
 	s.SetValue(s.data.Value())
 	s.Refresh()
@@ -287,24 +291,24 @@ func (s *Spinner) Tapped(evt *fyne.PointEvent) {
 	}
 	if s.upButton.ContainsPoint(evt.Position) {
 		s.upButton.Tapped(evt)
-		if s.data.value == s.data.max {
+		if s.data.AtMax() {
 			s.upButton.Disable()
 		} else {
 			s.upButton.Enable()
 		}
-		if s.data.value == s.data.min {
+		if s.data.AtMin() {
 			s.downButton.Disable()
 		} else {
 			s.downButton.Enable()
 		}
 	} else if s.downButton.ContainsPoint(evt.Position) {
 		s.downButton.Tapped(evt)
-		if s.data.value == s.data.min {
+		if s.data.AtMin() {
 			s.downButton.Disable()
 		} else {
 			s.downButton.Enable()
 		}
-		if s.data.value == s.data.max {
+		if s.data.AtMax() {
 			s.upButton.Disable()
 		} else {
 			s.upButton.Enable()
@@ -494,8 +498,8 @@ func (r *SpinnerRenderer) Refresh() {
 	r.text.Color = th.Color(fgColor, v)
 	r.text.Refresh()
 
-	r.spinner.upButton.EnableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.data.max)
-	r.spinner.downButton.EnableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.data.min)
+	r.spinner.upButton.EnableDisable(r.spinner.Disabled(), r.spinner.data.AtMax())
+	r.spinner.downButton.EnableDisable(r.spinner.Disabled(), r.spinner.data.AtMax())
 }
 
 // downButtonClicked handles tap events for the Spinner's down button.
@@ -504,7 +508,7 @@ func (s *Spinner) downButtonClicked() {
 	if s.Disabled() {
 		return
 	}
-	if s.data.value == s.data.min {
+	if s.data.AtMin() {
 		s.downButton.Disable()
 	} else {
 		s.downButton.Enable()
@@ -518,7 +522,7 @@ func (s *Spinner) upButtonClicked() {
 	if s.Disabled() {
 		return
 	}
-	if s.data.value == s.data.max {
+	if s.data.AtMax() {
 		s.upButton.Disable()
 	} else {
 		s.upButton.Enable()
