@@ -14,6 +14,9 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// maxDecimals is the maximum number of decimal places that can be displayed.
+var maxDecimals uint = 6
+
 var _ fyne.Disableable = (*Spinner)(nil)
 var _ fyne.Focusable = (*Spinner)(nil)
 var _ fyne.Tappable = (*Spinner)(nil)
@@ -30,6 +33,7 @@ type Spinner struct {
 	upButton   *SpinnerButton
 	downButton *SpinnerButton
 
+	format  string
 	binder  basicBinder
 	hovered bool
 	focused bool
@@ -55,10 +59,11 @@ func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64))
 
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
-	s.data = NewSpinnerData(s, min, max, step, decPlaces)
+	s.data = NewSpinnerData(s, min, max, step)
 	if s.data.initialized {
 		s.Enable()
 	}
+	s.setFormat(decPlaces)
 	return s
 }
 
@@ -80,7 +85,8 @@ func NewSpinnerUninitialized(decPlaces uint) *Spinner {
 	s := &Spinner{}
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
-	s.data = NewSpinnerDataUninitialized(s, decPlaces)
+	s.data = NewSpinnerDataUninitialized(s)
+	s.setFormat(decPlaces)
 	s.Disable()
 	return s
 }
@@ -124,7 +130,7 @@ func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 	box := canvas.NewRectangle(th.Color(theme.ColorNameBackground, v))
 	border := canvas.NewRectangle(color.Transparent)
 
-	value := fmt.Sprintf(s.data.format, s.data.Value())
+	value := fmt.Sprintf(s.format, s.data.Value())
 	text := canvas.NewText(value, th.Color(theme.ColorNameForeground, v))
 	text.Alignment = fyne.TextAlignTrailing
 
@@ -193,7 +199,7 @@ func (s *Spinner) GetOnChanged() func(float64) {
 }
 
 func (s *Spinner) GetFormat() string {
-	return s.data.format
+	return s.format
 }
 
 // / GetValue retrieves the current Spinner value.
@@ -358,6 +364,19 @@ func (s *Spinner) Unbind() {
 	s.OnChanged = nil
 }
 
+func (s *Spinner) setFormat(decPlaces uint) {
+	if decPlaces > maxDecimals {
+		fyne.LogError(fmt.Sprintf("spinner decPlaces: %d too large. Set to %d", decPlaces, maxDecimals), nil)
+		decPlaces = maxDecimals
+	}
+	if decPlaces == 0 {
+		s.format = "%d"
+	} else {
+		s.format = fmt.Sprintf("%%.%df", decPlaces)
+	}
+
+}
+
 // requestFocus requests that this Spinner receive focus.
 func (s *Spinner) requestFocus() {
 	if c := fyne.CurrentApp().Driver().CanvasForObject(s); c != nil {
@@ -371,13 +390,13 @@ func (s *Spinner) requestFocus() {
 // spinner's min and max values.
 func (s *Spinner) textSize() fyne.Size {
 	var minVal, maxVal string
-	if strings.Contains(s.data.format, "%d") ||
-		strings.Contains(s.data.format, "%+d") {
-		minVal = fmt.Sprintf(s.data.format, int(s.data.min))
-		maxVal = fmt.Sprintf(s.data.format, int(s.data.max))
+	if strings.Contains(s.format, "%d") ||
+		strings.Contains(s.format, "%+d") {
+		minVal = fmt.Sprintf(s.format, int(s.data.min))
+		maxVal = fmt.Sprintf(s.format, int(s.data.max))
 	} else {
-		minVal = fmt.Sprintf(s.data.format, s.data.min)
-		maxVal = fmt.Sprintf(s.data.format, s.data.max)
+		minVal = fmt.Sprintf(s.format, s.data.min)
+		maxVal = fmt.Sprintf(s.format, s.data.max)
 	}
 	return maxTextSize(minVal, maxVal)
 }
@@ -512,11 +531,11 @@ func (r *SpinnerRenderer) Refresh() {
 		r.border.StrokeColor = th.Color(theme.ColorNameError, v)
 	}
 
-	if strings.Contains(r.spinner.data.format, "%d") ||
-		strings.Contains(r.spinner.data.format, "%+d") {
-		r.text.Text = fmt.Sprintf(r.spinner.data.format, int(r.spinner.data.value))
+	if strings.Contains(r.spinner.format, "%d") ||
+		strings.Contains(r.spinner.format, "%+d") {
+		r.text.Text = fmt.Sprintf(r.spinner.format, int(r.spinner.data.value))
 	} else {
-		r.text.Text = fmt.Sprintf(r.spinner.data.format, r.spinner.data.value)
+		r.text.Text = fmt.Sprintf(r.spinner.format, r.spinner.data.value)
 	}
 	r.text.Color = th.Color(fgColor, v)
 	r.text.Refresh()

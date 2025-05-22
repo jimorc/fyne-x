@@ -19,14 +19,9 @@ func TestNewSpinner(t *testing.T) {
 	assert.Equal(t, 1., s.data.min)
 	assert.Equal(t, 5., s.data.max)
 	assert.Equal(t, 1.5, s.data.step)
-	assert.Equal(t, "%d", s.data.format)
 	assert.Equal(t, 1., s.GetValue())
 	assert.False(t, s.upButton.Disabled())
 	assert.True(t, s.downButton.Disabled())
-
-	s = NewSpinner(1., 5., 1.5, 3, nil)
-	assert.Equal(t, "%.3f", s.data.format)
-
 }
 
 func TestNewSpinner_BadArgs(t *testing.T) {
@@ -46,7 +41,7 @@ func TestNewSpinner_BadArgs(t *testing.T) {
 	assert.False(t, s.data.initialized, "spinner should not be initialized when step > max - min")
 
 	s = NewSpinner(1., 5., 2., 11, nil)
-	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), s.data.format)
+	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), s.format)
 	assert.True(t, s.data.initialized)
 }
 
@@ -100,7 +95,7 @@ func TestNewSpinnerWithData_BadArgs(t *testing.T) {
 	assert.False(t, s.data.initialized, "spinner should not be initialized when step > max - min")
 
 	s = NewSpinnerWithData(1., 5., 2., 11, boundValue)
-	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), s.data.format)
+	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), s.format)
 	assert.True(t, s.data.initialized)
 }
 
@@ -115,16 +110,16 @@ func TestNewSpinnerUninitialized(t *testing.T) {
 	s.Enable()
 	assert.False(t, s.Disabled())
 
-	assert.Equal(t, "%d", s.data.format)
+	assert.Equal(t, "%d", s.format)
 	assert.True(t, s.data.initialized)
 
 	s = NewSpinnerUninitialized(4)
 	assert.False(t, s.data.initialized)
-	assert.Equal(t, "%.4f", s.data.format)
+	assert.Equal(t, "%.4f", s.format)
 
 	s = NewSpinnerUninitialized(maxDecimals + 2)
 	assert.False(t, s.data.initialized)
-	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), s.data.format)
+	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), s.format)
 }
 
 func TestSpinner_SetValue(t *testing.T) {
