@@ -19,7 +19,7 @@ func TestNewSpinner(t *testing.T) {
 	assert.Equal(t, 1., s.data.min)
 	assert.Equal(t, 5., s.data.max)
 	assert.Equal(t, 1.5, s.data.step)
-	assert.Equal(t, 1., s.GetValue())
+	assert.Equal(t, 1., s.Value())
 	assert.False(t, s.upButton.Disabled())
 	assert.True(t, s.downButton.Disabled())
 }
@@ -125,7 +125,7 @@ func TestNewSpinnerUninitialized(t *testing.T) {
 func TestSpinner_SetValue(t *testing.T) {
 	s := NewSpinner(1, 5, 2, 0, nil)
 	s.SetValue(2)
-	assert.Equal(t, 2., s.GetValue())
+	assert.Equal(t, 2., s.Value())
 	assert.False(t, s.upButton.Disabled())
 	assert.False(t, s.downButton.Disabled())
 }
@@ -133,7 +133,7 @@ func TestSpinner_SetValue(t *testing.T) {
 func TestSpinner_SetValue_LessThanMin(t *testing.T) {
 	s := NewSpinner(4, 22, 5, 0, nil)
 	s.SetValue(3)
-	assert.Equal(t, 4., s.GetValue())
+	assert.Equal(t, 4., s.Value())
 	assert.True(t, s.downButton.Disabled())
 	assert.False(t, s.upButton.Disabled())
 }
@@ -141,7 +141,7 @@ func TestSpinner_SetValue_LessThanMin(t *testing.T) {
 func TestSpinner_SetValue_GreaterThanMax(t *testing.T) {
 	s := NewSpinner(4, 22, 5, 0, nil)
 	s.SetValue(23.)
-	assert.Equal(t, 22., s.GetValue())
+	assert.Equal(t, 22., s.Value())
 	assert.True(t, s.upButton.Disabled())
 	assert.False(t, s.downButton.Disabled())
 }
@@ -150,7 +150,7 @@ func TestSpinner_SetValue_DisabledSpinner(t *testing.T) {
 	s := NewSpinner(4, 22, 5, 0, nil)
 	s.Disable()
 	s.SetValue(10.)
-	assert.Equal(t, 4., s.GetValue())
+	assert.Equal(t, 4., s.Value())
 	assert.True(t, s.upButton.Disabled())
 	assert.True(t, s.downButton.Disabled())
 }
@@ -191,7 +191,7 @@ func TestNewSpinnerSpinner_SetMinMaxStep_DataAboveRange(t *testing.T) {
 	s := NewSpinnerWithData(-2, 20, 1, 0, data)
 	data.Set(19.)
 	waitForBinding()
-	assert.Equal(t, 19., s.GetValue())
+	assert.Equal(t, 19., s.Value())
 	s.SetMinMaxStep(-1., 10., 1.)
 	waitForBinding()
 	val, err := data.Get()
@@ -204,7 +204,7 @@ func TestSpinner_SetMinMaxStep_DataBelowRange(t *testing.T) {
 	s := NewSpinnerWithData(-2, 20, 1, 0, data)
 	data.Set(-2.)
 	waitForBinding()
-	assert.Equal(t, -2., s.GetValue())
+	assert.Equal(t, -2., s.Value())
 	s.SetMinMaxStep(-1., 10., 1.)
 	waitForBinding()
 	val, err := data.Get()
@@ -215,9 +215,9 @@ func TestSpinner_SetMinMaxStep_DataBelowRange(t *testing.T) {
 func TestSpinner_UpButtonTapped(t *testing.T) {
 	s := NewSpinner(4., 10., 5., 0, nil)
 	s.upButton.Tapped(&fyne.PointEvent{})
-	assert.Equal(t, 9., s.GetValue())
+	assert.Equal(t, 9., s.Value())
 	s.upButton.Tapped(&fyne.PointEvent{})
-	assert.Equal(t, 10., s.GetValue())
+	assert.Equal(t, 10., s.Value())
 	assert.True(t, s.upButton.Disabled())
 	assert.False(t, s.downButton.Disabled())
 }
@@ -226,9 +226,9 @@ func TestSpinner_DownButtonTapped(t *testing.T) {
 	s := NewSpinner(4, 10, 5, 0, nil)
 	s.SetValue(10.)
 	s.downButton.Tapped(&fyne.PointEvent{})
-	assert.Equal(t, 5., s.GetValue())
+	assert.Equal(t, 5., s.Value())
 	s.downButton.Tapped(&fyne.PointEvent{})
-	assert.Equal(t, 4., s.GetValue())
+	assert.Equal(t, 4., s.Value())
 	assert.False(t, s.upButton.Disabled())
 	assert.True(t, s.downButton.Disabled())
 }
@@ -278,12 +278,12 @@ func TestSpinner_RunePlus(t *testing.T) {
 	s := NewSpinner(4, 10, 5, 0, nil)
 	s.focused = true
 	s.TypedRune('+')
-	assert.Equal(t, 9., s.GetValue())
+	assert.Equal(t, 9., s.Value())
 	assert.False(t, s.upButton.Disabled())
 	assert.False(t, s.downButton.Disabled())
 
 	s.TypedRune('+')
-	assert.Equal(t, 10., s.GetValue())
+	assert.Equal(t, 10., s.Value())
 	assert.True(t, s.upButton.Disabled())
 	assert.False(t, s.downButton.Disabled())
 }
@@ -293,12 +293,12 @@ func TestSpinner_RuneMinus(t *testing.T) {
 	s.focused = true
 	s.SetValue(10.)
 	s.TypedRune('-')
-	assert.Equal(t, 5., s.GetValue())
+	assert.Equal(t, 5., s.Value())
 	assert.False(t, s.upButton.Disabled())
 	assert.False(t, s.downButton.Disabled())
 
 	s.TypedRune('-')
-	assert.Equal(t, 4., s.GetValue())
+	assert.Equal(t, 4., s.Value())
 	assert.False(t, s.upButton.Disabled())
 	assert.True(t, s.downButton.Disabled())
 }
@@ -308,7 +308,7 @@ func TestSpinner_RunePlus_SpinnerDisabled(t *testing.T) {
 	s.focused = true
 	s.Disable()
 	s.TypedRune('+')
-	assert.Equal(t, 4., s.GetValue())
+	assert.Equal(t, 4., s.Value())
 }
 
 func TestSpinner_RuneMinus_SpinnerDisabled(t *testing.T) {
@@ -317,14 +317,14 @@ func TestSpinner_RuneMinus_SpinnerDisabled(t *testing.T) {
 	s.SetValue(8.)
 	s.Disable()
 	s.TypedRune('-')
-	assert.Equal(t, 8., s.GetValue())
+	assert.Equal(t, 8., s.Value())
 }
 
 func TestSpinner_RunePlus_SpinnerNotFocused(t *testing.T) {
 	s := NewSpinner(4, 10, 5, 0, nil)
 	s.focused = false
 	s.TypedRune('+')
-	assert.Equal(t, 4., s.GetValue())
+	assert.Equal(t, 4., s.Value())
 }
 
 func TestSpinner_RuneMinus_SpinnerNotFocused(t *testing.T) {
@@ -333,7 +333,7 @@ func TestSpinner_RuneMinus_SpinnerNotFocused(t *testing.T) {
 	s.SetValue(8)
 	s.focused = false
 	s.TypedRune('-')
-	assert.Equal(t, 8., s.GetValue())
+	assert.Equal(t, 8., s.Value())
 }
 
 func TestSpinner_KeyUp(t *testing.T) {
@@ -341,12 +341,12 @@ func TestSpinner_KeyUp(t *testing.T) {
 	s.focused = true
 	key := fyne.KeyEvent{Name: fyne.KeyUp}
 	s.TypedKey(&key)
-	assert.Equal(t, 9., s.GetValue())
+	assert.Equal(t, 9., s.Value())
 	assert.False(t, s.upButton.Disabled())
 	assert.False(t, s.downButton.Disabled())
 
 	s.TypedKey(&key)
-	assert.Equal(t, 10., s.GetValue())
+	assert.Equal(t, 10., s.Value())
 	assert.True(t, s.upButton.Disabled())
 	assert.False(t, s.downButton.Disabled())
 }
@@ -357,12 +357,12 @@ func TestSpinner_KeyDown(t *testing.T) {
 	s.SetValue(10)
 	key := fyne.KeyEvent{Name: fyne.KeyDown}
 	s.TypedKey(&key)
-	assert.Equal(t, 5., s.GetValue())
+	assert.Equal(t, 5., s.Value())
 	assert.False(t, s.upButton.Disabled())
 	assert.False(t, s.downButton.Disabled())
 
 	s.TypedKey(&key)
-	assert.Equal(t, 4., s.GetValue())
+	assert.Equal(t, 4., s.Value())
 	assert.False(t, s.upButton.Disabled())
 	assert.True(t, s.downButton.Disabled())
 }
@@ -373,7 +373,7 @@ func TestSpinner_KeyUp_SpinnerDisabled(t *testing.T) {
 	s.Disable()
 	key := fyne.KeyEvent{Name: fyne.KeyUp}
 	s.TypedKey(&key)
-	assert.Equal(t, 4., s.GetValue())
+	assert.Equal(t, 4., s.Value())
 }
 
 func TestSpinner_KeyDown_SpinnerDisabled(t *testing.T) {
@@ -383,7 +383,7 @@ func TestSpinner_KeyDown_SpinnerDisabled(t *testing.T) {
 	s.Disable()
 	key := fyne.KeyEvent{Name: fyne.KeyDown}
 	s.TypedKey(&key)
-	assert.Equal(t, 8., s.GetValue())
+	assert.Equal(t, 8., s.Value())
 }
 
 func TestSpinner_KeyUp_SpinnerNotFocused(t *testing.T) {
@@ -391,7 +391,7 @@ func TestSpinner_KeyUp_SpinnerNotFocused(t *testing.T) {
 	s.focused = false
 	key := fyne.KeyEvent{Name: fyne.KeyUp}
 	s.TypedKey(&key)
-	assert.Equal(t, 4., s.GetValue())
+	assert.Equal(t, 4., s.Value())
 }
 
 func TestSpinner_KeyDown_SpinnerNotFocused(t *testing.T) {
@@ -401,7 +401,7 @@ func TestSpinner_KeyDown_SpinnerNotFocused(t *testing.T) {
 	s.focused = false
 	key := fyne.KeyEvent{Name: fyne.KeyDown}
 	s.TypedKey(&key)
-	assert.Equal(t, 8., s.GetValue())
+	assert.Equal(t, 8., s.Value())
 }
 
 func TestSpinner_Scrolled(t *testing.T) {
@@ -410,13 +410,13 @@ func TestSpinner_Scrolled(t *testing.T) {
 	delta := fyne.Delta{DX: 0, DY: 25}
 	e := fyne.ScrollEvent{Scrolled: delta}
 	s.Scrolled(&e)
-	assert.Equal(t, 2., s.GetValue())
+	assert.Equal(t, 2., s.Value())
 	s.Scrolled(&e)
-	assert.Equal(t, 3., s.GetValue())
+	assert.Equal(t, 3., s.Value())
 	delta = fyne.Delta{DX: 0, DY: -25}
 	e = fyne.ScrollEvent{Scrolled: delta}
 	s.Scrolled(&e)
-	assert.Equal(t, 2., s.GetValue())
+	assert.Equal(t, 2., s.Value())
 }
 
 func TestSpinner_Scrolled_Disabled(t *testing.T) {
@@ -426,7 +426,7 @@ func TestSpinner_Scrolled_Disabled(t *testing.T) {
 	delta := fyne.Delta{DX: 0, DY: 25}
 	e := fyne.ScrollEvent{Scrolled: delta}
 	s.Scrolled(&e)
-	assert.Equal(t, 1., s.GetValue())
+	assert.Equal(t, 1., s.Value())
 }
 
 func TestSpinner_Scrolled_NotFocused(t *testing.T) {
@@ -434,7 +434,7 @@ func TestSpinner_Scrolled_NotFocused(t *testing.T) {
 	delta := fyne.Delta{DX: 0, DY: 25}
 	e := fyne.ScrollEvent{Scrolled: delta}
 	s.Scrolled(&e)
-	assert.Equal(t, 1., s.GetValue())
+	assert.Equal(t, 1., s.Value())
 }
 
 /*
@@ -466,7 +466,7 @@ func TestSpinner_Binding_OutsideRange(t *testing.T) {
 	assert.NoError(t, err)
 	waitForBinding()
 
-	assert.Equal(t, 5., s.GetValue())
+	assert.Equal(t, 5., s.Value())
 
 	v, err := val.Get()
 	assert.NoError(t, err)

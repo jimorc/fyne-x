@@ -52,11 +52,11 @@ func main() {
 	l1.Alignment = fyne.TextAlignTrailing
 	s1 = xwidget.NewSpinner(0, 100, 1, 0, nil)
 	s1.OnChanged = func(val float64) {
-		s1ValueLabel.Text = fmt.Sprintf("%d", int(s1.GetValue()))
+		s1ValueLabel.Text = fmt.Sprintf("%d", int(s1.Value()))
 		s1ValueLabel.Refresh()
 	}
 	// OnChanged has to be called here to display initial value in s1ValueLabel.
-	s1.OnChanged(s1.GetValue())
+	s1.OnChanged(s1.Value())
 	// Remove // in front of these lines when EntrySpinner is added.
 	//	le1 := widget.NewLabel("EntrySpinner 1 (0, 100, 1, \"%d %%\"):")
 	//	le1.Alignment = fyne.TextAlignTrailing

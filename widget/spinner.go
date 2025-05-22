@@ -201,11 +201,6 @@ func (s *Spinner) GetFormat() string {
 	return s.format
 }
 
-// / GetValue retrieves the current Spinner value.
-func (s *Spinner) GetValue() float64 {
-	return s.data.Value()
-}
-
 // MinSize returns the minimum size of the Spinner widget. The minimum size is calculated
 // based on the maximum width that the value could require based on its format.
 func (s *Spinner) MinSize() fyne.Size {
@@ -358,6 +353,11 @@ func (s *Spinner) TypedRune(rune rune) {
 // The current value will remain at the last value of the data source.
 func (s *Spinner) Unbind() {
 	s.data.Unbind()
+}
+
+// Value retrieves the current Spinner value.
+func (s *Spinner) Value() float64 {
+	return s.data.Value()
 }
 
 func (s *Spinner) setFormat(decPlaces uint) {
