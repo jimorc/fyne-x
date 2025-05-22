@@ -56,8 +56,8 @@ type Spinner struct {
 func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64)) *Spinner {
 	s := &Spinner{}
 
-	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
-	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
+	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.increment)
+	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.decrement)
 	s.data = NewSpinnerData(s, min, max, step)
 	if s.data.initialized {
 		s.Enable()
@@ -82,8 +82,8 @@ func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64))
 // If decPlaces == 0, then the value is displayed as an integer.
 func NewSpinnerUninitialized(decPlaces uint) *Spinner {
 	s := &Spinner{}
-	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
-	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
+	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.increment)
+	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.decrement)
 	s.data = NewSpinnerDataUninitialized(s)
 	s.setFormat(decPlaces)
 	s.Disable()
@@ -303,9 +303,9 @@ func (s *Spinner) TypedKey(key *fyne.KeyEvent) {
 	}
 	switch key.Name {
 	case fyne.KeyUp:
-		s.SetValue(s.data.value + s.data.step)
+		s.increment()
 	case fyne.KeyDown:
-		s.SetValue(s.data.value - s.data.step)
+		s.decrement()
 	default:
 		return
 	}
@@ -322,9 +322,9 @@ func (s *Spinner) TypedRune(rune rune) {
 	}
 	switch rune {
 	case '+':
-		s.SetValue(s.data.value + s.data.step)
+		s.increment()
 	case '-':
-		s.SetValue(s.data.value - s.data.step)
+		s.decrement()
 	default:
 		return
 	}
@@ -339,6 +339,28 @@ func (s *Spinner) Unbind() {
 // Value retrieves the current Spinner value.
 func (s *Spinner) Value() float64 {
 	return s.data.Value()
+}
+
+// decrement handles tap events for the Spinner's down button.
+func (s *Spinner) decrement() {
+	s.data.Decrement()
+	if s.Disabled() {
+		return
+	}
+	s.downButton.EnableDisable(false, s.data.AtMin())
+	s.upButton.Enable()
+	s.Refresh()
+}
+
+// / increment handles tap events for the Spinner's up button.
+func (s *Spinner) increment() {
+	s.data.Increment()
+	if s.Disabled() {
+		return
+	}
+	s.upButton.EnableDisable(false, s.data.AtMax())
+	s.downButton.Enable()
+	s.Refresh()
 }
 
 func (s *Spinner) setFormat(decPlaces uint) {
@@ -478,28 +500,6 @@ func (r *SpinnerRenderer) Refresh() {
 	}
 	r.text.Color = th.Color(fgColor, v)
 	r.text.Refresh()
-}
-
-// downButtonClicked handles tap events for the Spinner's down button.
-func (s *Spinner) downButtonClicked() {
-	s.data.Decrement()
-	if s.Disabled() {
-		return
-	}
-	s.downButton.EnableDisable(false, s.data.AtMin())
-	s.upButton.Enable()
-	s.Refresh()
-}
-
-// / upButtonClicked handles tap events for the Spinner's up button.
-func (s *Spinner) upButtonClicked() {
-	s.data.Increment()
-	if s.Disabled() {
-		return
-	}
-	s.upButton.EnableDisable(false, s.data.AtMax())
-	s.downButton.Enable()
-	s.Refresh()
 }
 
 // maxTextSize calculates the larger of the canvas.Text sizes for the two string params
