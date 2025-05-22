@@ -497,9 +497,6 @@ func (r *SpinnerRenderer) Refresh() {
 	}
 	r.text.Color = th.Color(fgColor, v)
 	r.text.Refresh()
-
-	r.spinner.upButton.EnableDisable(r.spinner.Disabled(), r.spinner.data.AtMax())
-	r.spinner.downButton.EnableDisable(r.spinner.Disabled(), r.spinner.data.AtMax())
 }
 
 // downButtonClicked handles tap events for the Spinner's down button.
@@ -514,6 +511,7 @@ func (s *Spinner) downButtonClicked() {
 		s.downButton.Enable()
 	}
 	s.upButton.Enable()
+	s.Refresh()
 }
 
 // / upButtonClicked handles tap events for the Spinner's up button.
@@ -528,6 +526,7 @@ func (s *Spinner) upButtonClicked() {
 		s.upButton.Enable()
 	}
 	s.downButton.Enable()
+	s.Refresh()
 }
 
 // maxTextSize calculates the larger of the canvas.Text sizes for the two string params
