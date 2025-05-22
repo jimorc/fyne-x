@@ -162,12 +162,6 @@ func (s *Spinner) Enable() {
 	if !s.data.initialized {
 		return
 	}
-	if !s.data.AtMax() {
-		s.upButton.Enable()
-	}
-	if !s.data.AtMin() {
-		s.downButton.Enable()
-	}
 
 	s.DisableableWidget.Enable()
 	s.SetValue(s.data.Value())
