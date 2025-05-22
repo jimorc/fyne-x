@@ -281,15 +281,15 @@ func (s *Spinner) Tapped(evt *fyne.PointEvent) {
 	}
 	if s.upButton.ContainsPoint(evt.Position) {
 		s.upButton.Tapped(evt)
-		s.upButton.EnableDisable(false, s.data.AtMax())
-		s.downButton.Enable()
-		s.Refresh()
 	} else if s.downButton.ContainsPoint(evt.Position) {
 		s.downButton.Tapped(evt)
-		s.downButton.EnableDisable(false, s.data.AtMin())
-		s.upButton.Enable()
-		s.Refresh()
+	} else {
+		return
 	}
+
+	s.upButton.EnableDisable(false, s.data.AtMax())
+	s.downButton.EnableDisable(false, s.data.AtMin())
+	s.Refresh()
 }
 
 // TypedKey receives key input events when the spinner widget has focus.
