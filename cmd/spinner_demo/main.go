@@ -91,7 +91,7 @@ func main() {
 		bs.Disable()
 	})
 	bs1 := widget.NewButton("Set Spinner 1 to 5", func() { s1.SetValue(5) })
-	bs2 := widget.NewButton("Set Spinner 3 bound value to 12", func() { data.Set(12) })
+	bs2 := widget.NewButton("Set Spinner 2 bound value to 12", func() { data.Set(12) })
 
 	l4 := widget.NewLabel("Spinner 4 (-1., 400., 10.3, 1):")
 	s4 := xwidget.NewSpinner(-1., 400., 10.3, 1, nil)

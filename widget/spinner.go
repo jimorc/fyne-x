@@ -194,7 +194,16 @@ func (s *Spinner) FocusLost() {
 //
 // Implements the Spinnable interface.
 func (s *Spinner) GetOnChanged() func(float64) {
-	return s.OnChanged
+	return func(float64) {
+		if s.OnChanged != nil {
+			s.OnChanged(s.Value())
+		}
+		if s.data != nil {
+			s.upButton.EnableDisable(s.Disabled(), s.data.AtMax())
+			s.downButton.EnableDisable(s.Disabled(), s.data.AtMin())
+			s.Refresh()
+		}
+	}
 }
 
 func (s *Spinner) GetFormat() string {

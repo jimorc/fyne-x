@@ -188,6 +188,7 @@ func (d *SpinnerData) updateFromData(data binding.DataItem) {
 		return
 	}
 	d.SetValue(val)
+	d.valueChanged()
 }
 
 // valueChanged executes any onChanged functions in the SpinnerData and Spinnable objects.
