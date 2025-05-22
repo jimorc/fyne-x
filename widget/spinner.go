@@ -19,24 +19,20 @@ var _ fyne.Focusable = (*Spinner)(nil)
 var _ fyne.Tappable = (*Spinner)(nil)
 var _ desktop.Mouseable = (*Spinner)(nil)
 var _ fyne.Scrollable = (*Spinner)(nil)
+var _ Spinnable = (*Spinner)(nil)
 
 // Spinner widget has a minimum, maximum, step and current values along with spinnerButtons
 // to increment and decrement the spinner value.
 type Spinner struct {
 	widget.DisableableWidget
 
-	value      float64
-	min        float64
-	max        float64
-	step       float64
-	format     string
+	data       *SpinnerData
 	upButton   *SpinnerButton
 	downButton *SpinnerButton
 
-	binder      basicBinder
-	initialized bool
-	hovered     bool
-	focused     bool
+	binder  basicBinder
+	hovered bool
+	focused bool
 
 	OnChanged func(float64) `json:"-"`
 }
@@ -55,37 +51,14 @@ type Spinner struct {
 //
 //	onChanged is the callback function that is called whenever the spinner value changes.
 func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64)) *Spinner {
-	s := &Spinner{
-		min:       min,
-		max:       max,
-		step:      step,
-		OnChanged: onChanged,
-	}
-	s.initialized = true
-	if min >= max {
-		fyne.LogError("Spinner max value must be greater than min value", nil)
-		s.initialized = false
-	}
-	if step < 1 {
-		fyne.LogError("Spinner step must be greater than 0", nil)
-		s.initialized = false
-	}
-	if step > max-min {
-		fyne.LogError("Spinner step must be less than or equal to max - min", nil)
-		s.initialized = false
-	}
-	if decPlaces > maxDecimals {
-		fyne.LogError(fmt.Sprintf("spinner decPlaces must be <= %d", maxDecimals), nil)
-		decPlaces = maxDecimals
-	}
-	if decPlaces == 0 {
-		s.format = "%d"
-	} else {
-		s.format = fmt.Sprintf("%%.%df", decPlaces)
-	}
+	s := &Spinner{}
+
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
-	s.SetValue(s.min)
+	s.data = NewSpinnerData(s, min, max, step, decPlaces)
+	if s.data.initialized {
+		s.Enable()
+	}
 	return s
 }
 
@@ -105,18 +78,9 @@ func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64))
 // If decPlaces == 0, then the value is displayed as an integer.
 func NewSpinnerUninitialized(decPlaces uint) *Spinner {
 	s := &Spinner{}
-	if decPlaces > maxDecimals {
-		fyne.LogError(fmt.Sprintf("spinner decPlaces set to %d", maxDecimals), nil)
-		decPlaces = maxDecimals
-	}
-	if decPlaces == 0 {
-		s.format = "%d"
-	} else {
-		s.format = fmt.Sprintf("%%.%df", decPlaces)
-	}
-	s.initialized = false
 	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.upButtonClicked)
 	s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.downButtonClicked)
+	s.data = NewSpinnerDataUninitialized(s, decPlaces)
 	s.Disable()
 	return s
 }
@@ -136,7 +100,7 @@ func NewSpinnerUninitialized(decPlaces uint) *Spinner {
 //	data is the value that is bound to the spinner value.
 func NewSpinnerWithData(min, max, step float64, decPlaces uint, data binding.Float) *Spinner {
 	s := NewSpinner(min, max, step, decPlaces, nil)
-	s.Bind(data)
+	s.data.Bind(data)
 	return s
 }
 
@@ -160,7 +124,7 @@ func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 	box := canvas.NewRectangle(th.Color(theme.ColorNameBackground, v))
 	border := canvas.NewRectangle(color.Transparent)
 
-	value := fmt.Sprintf(s.format, s.value)
+	value := fmt.Sprintf(s.data.format, s.data.Value())
 	text := canvas.NewText(value, th.Color(theme.ColorNameForeground, v))
 	text.Alignment = fyne.TextAlignTrailing
 
@@ -191,17 +155,17 @@ func (s *Spinner) Disable() {
 
 // Enable enables the Spinner and its buttons as appropriate.
 func (s *Spinner) Enable() {
-	if !s.initialized {
+	if !s.data.initialized {
 		return
 	}
-	if s.GetValue() < s.max {
+	if s.GetValue() < s.data.max {
 		s.upButton.Enable()
 	}
-	if s.GetValue() > s.min {
+	if s.GetValue() > s.data.min {
 		s.downButton.Enable()
 	}
 	s.DisableableWidget.Enable()
-	s.SetValue(s.value)
+	s.SetValue(s.data.Value())
 	s.Refresh()
 }
 
@@ -221,13 +185,20 @@ func (s *Spinner) FocusLost() {
 	s.Refresh()
 }
 
+// GetOnChanged returns the Spinner's OnChanged function.
+//
+// Implements the Spinnable interface.
+func (s *Spinner) GetOnChanged() func(float64) {
+	return s.OnChanged
+}
+
 func (s *Spinner) GetFormat() string {
-	return s.format
+	return s.data.format
 }
 
 // / GetValue retrieves the current Spinner value.
 func (s *Spinner) GetValue() float64 {
-	return s.value
+	return s.data.Value()
 }
 
 // MinSize returns the minimum size of the Spinner widget. The minimum size is calculated
@@ -264,9 +235,9 @@ func (s *Spinner) Scrolled(evt *fyne.ScrollEvent) {
 		return
 	}
 	if evt.Scrolled.DY > 0 {
-		s.SetValue(s.value + s.step)
+		s.SetValue(s.data.value + s.data.step)
 	} else if evt.Scrolled.DY < 0 {
-		s.SetValue(s.value - s.step)
+		s.SetValue(s.data.value - s.data.step)
 	}
 }
 
@@ -290,15 +261,15 @@ func (s *Spinner) SetMinMaxStep(min, max, step float64) {
 	if step > max-min {
 		panic(errors.New("spinner step must be less than or equal to max - min"))
 	}
-	s.min = min
-	s.max = max
-	s.step = step
-	s.initialized = true
+	s.data.min = min
+	s.data.max = max
+	s.data.step = step
+	s.data.initialized = true
 
-	if s.value < s.min {
-		s.SetValue(s.min)
-	} else if s.value > s.max {
-		s.SetValue(s.max)
+	if s.data.value < s.data.min {
+		s.SetValue(s.data.min)
+	} else if s.data.value > s.data.max {
+		s.SetValue(s.data.max)
 	}
 }
 
@@ -308,22 +279,22 @@ func (s *Spinner) SetValue(val float64) {
 	if s.Disabled() {
 		return
 	}
-	s.value = val
-	if s.value >= s.max {
-		s.value = s.max
+	s.data.value = val
+	if s.data.value >= s.data.max {
+		s.data.value = s.data.max
 		s.upButton.Disable()
 	} else {
 		s.upButton.Enable()
 	}
-	if s.value <= s.min {
-		s.value = s.min
+	if s.data.value <= s.data.min {
+		s.data.value = s.data.min
 		s.downButton.Disable()
 	} else {
 		s.downButton.Enable()
 	}
 	s.Refresh()
 	if s.OnChanged != nil {
-		s.OnChanged(s.value)
+		s.OnChanged(s.data.value)
 	}
 }
 
@@ -353,9 +324,9 @@ func (s *Spinner) TypedKey(key *fyne.KeyEvent) {
 	}
 	switch key.Name {
 	case fyne.KeyUp:
-		s.SetValue(s.value + s.step)
+		s.SetValue(s.data.value + s.data.step)
 	case fyne.KeyDown:
-		s.SetValue(s.value - s.step)
+		s.SetValue(s.data.value - s.data.step)
 	default:
 		return
 	}
@@ -372,9 +343,9 @@ func (s *Spinner) TypedRune(rune rune) {
 	}
 	switch rune {
 	case '+':
-		s.SetValue(s.value + s.step)
+		s.SetValue(s.data.value + s.data.step)
 	case '-':
-		s.SetValue(s.value - s.step)
+		s.SetValue(s.data.value - s.data.step)
 	default:
 		return
 	}
@@ -400,13 +371,13 @@ func (s *Spinner) requestFocus() {
 // spinner's min and max values.
 func (s *Spinner) textSize() fyne.Size {
 	var minVal, maxVal string
-	if strings.Contains(s.format, "%d") ||
-		strings.Contains(s.format, "%+d") {
-		minVal = fmt.Sprintf(s.format, int(s.min))
-		maxVal = fmt.Sprintf(s.format, int(s.max))
+	if strings.Contains(s.data.format, "%d") ||
+		strings.Contains(s.data.format, "%+d") {
+		minVal = fmt.Sprintf(s.data.format, int(s.data.min))
+		maxVal = fmt.Sprintf(s.data.format, int(s.data.max))
 	} else {
-		minVal = fmt.Sprintf(s.format, s.min)
-		maxVal = fmt.Sprintf(s.format, s.max)
+		minVal = fmt.Sprintf(s.data.format, s.data.min)
+		maxVal = fmt.Sprintf(s.data.format, s.data.max)
 	}
 	return maxTextSize(minVal, maxVal)
 }
@@ -430,14 +401,14 @@ func (s *Spinner) updateFromData(data binding.DataItem) {
 
 // validate validates the Spinner widget.
 func (s *Spinner) validate() error {
-	if !s.initialized {
-		if s.min >= s.max {
+	if !s.data.initialized {
+		if s.data.min >= s.data.max {
 			return errors.New("spinner max value must be greater than min value")
 		}
-		if s.step < 0 {
+		if s.data.step < 0 {
 			return errors.New("spinner step must be greater than 0")
 		}
-		if s.step > s.max-s.min {
+		if s.data.step > s.data.max-s.data.min {
 			return errors.New("spinner step must be less than or equal to max - min")
 		}
 		return errors.New("spinner has not been initialized")
@@ -541,27 +512,27 @@ func (r *SpinnerRenderer) Refresh() {
 		r.border.StrokeColor = th.Color(theme.ColorNameError, v)
 	}
 
-	if strings.Contains(r.spinner.format, "%d") ||
-		strings.Contains(r.spinner.format, "%+d") {
-		r.text.Text = fmt.Sprintf(r.spinner.format, int(r.spinner.value))
+	if strings.Contains(r.spinner.data.format, "%d") ||
+		strings.Contains(r.spinner.data.format, "%+d") {
+		r.text.Text = fmt.Sprintf(r.spinner.data.format, int(r.spinner.data.value))
 	} else {
-		r.text.Text = fmt.Sprintf(r.spinner.format, r.spinner.value)
+		r.text.Text = fmt.Sprintf(r.spinner.data.format, r.spinner.data.value)
 	}
 	r.text.Color = th.Color(fgColor, v)
 	r.text.Refresh()
 
-	r.spinner.upButton.EnableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.max)
-	r.spinner.downButton.EnableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.min)
+	r.spinner.upButton.EnableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.data.max)
+	r.spinner.downButton.EnableDisable(r.spinner.Disabled(), r.spinner.GetValue() == r.spinner.data.min)
 }
 
 // downButtonClicked handles tap events for the Spinner's down button.
 func (s *Spinner) downButtonClicked() {
-	s.SetValue(s.value - s.step)
+	s.SetValue(s.data.value - s.data.step)
 }
 
 // / upButtonClicked handles tap events for the Spinner's up button.
 func (s *Spinner) upButtonClicked() {
-	s.SetValue(s.value + s.step)
+	s.SetValue(s.data.value + s.data.step)
 }
 
 // maxTextSize calculates the larger of the canvas.Text sizes for the two string params

@@ -125,7 +125,7 @@ func (d *SpinnerData) SetMinMaxStep(min, max, step float64) {
 	d.step = step
 	d.initialized = d.Validate() == nil
 	if d.initialized {
-		d.s.Enable()
+		//		d.s.Enable()
 		d.SetValue(min)
 	}
 }
