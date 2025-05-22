@@ -266,16 +266,8 @@ func (s *Spinner) SetValue(val float64) {
 		return
 	}
 	s.data.SetValue(val)
-	if s.data.value == s.data.min {
-		s.downButton.Disable()
-	} else {
-		s.downButton.Enable()
-	}
-	if s.data.value == s.data.max {
-		s.upButton.Disable()
-	} else {
-		s.upButton.Enable()
-	}
+	s.upButton.EnableDisable(false, s.data.AtMax())
+	s.downButton.EnableDisable(false, s.data.AtMin())
 	s.Refresh()
 }
 
