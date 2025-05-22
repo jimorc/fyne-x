@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/data/binding"
 )
 
 // maxDecimals is the maximum number of decimal places that can be displayed.
@@ -20,12 +21,15 @@ type Spinnable interface {
 
 // SpinnerData contains the data used by various spinner widget types.
 type SpinnerData struct {
-	s           Spinnable
-	value       float64
-	min         float64
-	max         float64
-	step        float64
-	format      string
+	s      Spinnable
+	value  float64
+	min    float64
+	max    float64
+	step   float64
+	format string
+
+	binder basicBinder
+
 	initialized bool
 	onChanged   func(float64)
 }
@@ -72,6 +76,26 @@ func NewSpinnerDataUninitialized(spinnable Spinnable, decPlaces uint) *SpinnerDa
 		d.format = fmt.Sprintf("%%.%df", decPlaces)
 	}
 	return d
+}
+
+func NewSpinnerDataWithData(s Spinnable, min, max, step float64, decPlaces uint,
+	data binding.Float) *SpinnerData {
+	d := NewSpinnerData(s, min, max, step, decPlaces)
+
+	d.Bind(data)
+	return d
+
+}
+
+// Bind connects the specified data source to this Spinner widget.
+// The current value will be displayed and any changes in the data will cause the widget
+// to update.
+func (d *SpinnerData) Bind(data binding.Float) {
+	d.binder.SetCallback(d.updateFromData)
+	d.binder.Bind(data)
+	d.onChanged = func(_ float64) {
+		d.binder.CallWithData(d.writeData)
+	}
 }
 
 // Decrement decrements the SpinnerData object's value by its step size.
@@ -123,6 +147,13 @@ func (d *SpinnerData) SetValue(value float64) {
 	d.valueChanged()
 }
 
+// Unbind disconnects any configured data source from this spinnerData.
+// The current value will remain at the last value of the data source.
+func (d *SpinnerData) Unbind() {
+	d.binder.Unbind()
+	d.onChanged = nil
+}
+
 // Validate validates the spinnerData settings.
 func (d *SpinnerData) Validate() error {
 	if d.min == 0. && d.max == 0. && d.step == 0. {
@@ -145,6 +176,23 @@ func (d *SpinnerData) Value() float64 {
 	return d.value
 }
 
+// updateFromData updates the spinner to the value set in the bound data.
+func (d *SpinnerData) updateFromData(data binding.DataItem) {
+	if data == nil {
+		return
+	}
+	textSource, ok := data.(binding.Float)
+	if !ok {
+		return
+	}
+	val, err := textSource.Get()
+	if err != nil {
+		fyne.LogError("Error getting current data value", err)
+		return
+	}
+	d.SetValue(val)
+}
+
 // valueChanged executes any onChanged functions in the SpinnerData and Spinnable objects.
 // This method is executed every time the value changes in the SpinnerData object.
 func (d *SpinnerData) valueChanged() {
@@ -154,5 +202,26 @@ func (d *SpinnerData) valueChanged() {
 	spinnerOnChanged := d.s.GetOnChanged()
 	if spinnerOnChanged != nil {
 		spinnerOnChanged(d.value)
+	}
+}
+
+// writeData updates the bound data item as the result of changes in the spinnerData value.
+func (d *SpinnerData) writeData(data binding.DataItem) {
+	if data == nil {
+		return
+	}
+	floatTarget, ok := data.(binding.Float)
+	if !ok {
+		return
+	}
+	currentValue, err := floatTarget.Get()
+	if err != nil {
+		return
+	}
+	if currentValue != d.Value() {
+		err := floatTarget.Set(d.Value())
+		if err != nil {
+			fyne.LogError(fmt.Sprintf("Failed to set binding value to %f", d.Value()), err)
+		}
 	}
 }

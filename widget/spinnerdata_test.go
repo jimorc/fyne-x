@@ -3,6 +3,7 @@ package widget
 import (
 	"testing"
 
+	"fyne.io/fyne/v2/data/binding"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -211,4 +212,22 @@ func TestSpinnerData_SetMinMaxStep(t *testing.T) {
 	assert.Equal(t, 4., d.max)
 	assert.Equal(t, 1., d.step)
 	assert.Equal(t, 1., d.Value())
+}
+
+func TestSpinnerData_NewSpinnerDataWithData(t *testing.T) {
+	var data binding.Float = binding.NewFloat()
+	s := &spinner{}
+	d := NewSpinnerDataWithData(s, 1, 12, 1, 0, data)
+	data.Set(10.)
+	waitForBinding()
+	assert.Equal(t, 10., d.Value())
+
+	d.SetValue(4.)
+	waitForBinding()
+	assert.Equal(t, 4., d.Value())
+
+	d.Unbind()
+	data.Set(6.)
+	waitForBinding()
+	assert.Equal(t, 4., d.Value())
 }
