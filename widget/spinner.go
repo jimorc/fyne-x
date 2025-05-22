@@ -34,7 +34,6 @@ type Spinner struct {
 	downButton *SpinnerButton
 
 	format  string
-	binder  basicBinder
 	hovered bool
 	focused bool
 
@@ -114,11 +113,7 @@ func NewSpinnerWithData(min, max, step float64, decPlaces uint, data binding.Flo
 // The current value will be displayed and any changes in the data will cause the widget
 // to update.
 func (s *Spinner) Bind(data binding.Float) {
-	s.binder.SetCallback(s.updateFromData)
-	s.binder.Bind(data)
-	s.OnChanged = func(_ float64) {
-		s.binder.CallWithData(s.writeData)
-	}
+	s.data.Bind(data)
 }
 
 // CreateRenderer is a private method to fyne which links this widget to its
@@ -248,7 +243,6 @@ func (s *Spinner) Scrolled(evt *fyne.ScrollEvent) {
 }
 
 // SetMinMaxStep sets the widget's minimum, maximum, and step values.
-// You should call Refresh() after this call.
 //
 // Params:
 //
@@ -260,6 +254,7 @@ func (s *Spinner) Scrolled(evt *fyne.ScrollEvent) {
 // If the previously set value is greater than max, then the value is set to max.
 func (s *Spinner) SetMinMaxStep(min, max, step float64) {
 	s.data.SetMinMaxStep(min, max, step)
+	s.Refresh()
 }
 
 // SetValue sets the spinner value. It ensures that the value is always >= min and
@@ -268,23 +263,18 @@ func (s *Spinner) SetValue(val float64) {
 	if s.Disabled() {
 		return
 	}
-	s.data.value = val
-	if s.data.value >= s.data.max {
-		s.data.value = s.data.max
-		s.upButton.Disable()
-	} else {
-		s.upButton.Enable()
-	}
-	if s.data.value <= s.data.min {
-		s.data.value = s.data.min
+	s.data.SetValue(val)
+	if s.data.value == s.data.min {
 		s.downButton.Disable()
 	} else {
 		s.downButton.Enable()
 	}
-	s.Refresh()
-	if s.OnChanged != nil {
-		s.OnChanged(s.data.value)
+	if s.data.value == s.data.max {
+		s.upButton.Disable()
+	} else {
+		s.upButton.Enable()
 	}
+	s.Refresh()
 }
 
 // Tapped handles primary button clicks with the cursor over
@@ -297,8 +287,28 @@ func (s *Spinner) Tapped(evt *fyne.PointEvent) {
 	}
 	if s.upButton.ContainsPoint(evt.Position) {
 		s.upButton.Tapped(evt)
+		if s.data.value == s.data.max {
+			s.upButton.Disable()
+		} else {
+			s.upButton.Enable()
+		}
+		if s.data.value == s.data.min {
+			s.downButton.Disable()
+		} else {
+			s.downButton.Enable()
+		}
 	} else if s.downButton.ContainsPoint(evt.Position) {
 		s.downButton.Tapped(evt)
+		if s.data.value == s.data.min {
+			s.downButton.Disable()
+		} else {
+			s.downButton.Enable()
+		}
+		if s.data.value == s.data.max {
+			s.upButton.Disable()
+		} else {
+			s.upButton.Enable()
+		}
 	}
 }
 
@@ -343,8 +353,7 @@ func (s *Spinner) TypedRune(rune rune) {
 // Unbind disconnects any configured data source from this spinner.
 // The current value will remain at the last value of the data source.
 func (s *Spinner) Unbind() {
-	s.binder.Unbind()
-	s.OnChanged = nil
+	s.data.Unbind()
 }
 
 func (s *Spinner) setFormat(decPlaces uint) {
@@ -384,23 +393,6 @@ func (s *Spinner) textSize() fyne.Size {
 	return maxTextSize(minVal, maxVal)
 }
 
-// updateFromData updates the spinner to the value set in the bound data.
-func (s *Spinner) updateFromData(data binding.DataItem) {
-	if data == nil {
-		return
-	}
-	textSource, ok := data.(binding.Float)
-	if !ok {
-		return
-	}
-	val, err := textSource.Get()
-	if err != nil {
-		fyne.LogError("Error getting current data value", err)
-		return
-	}
-	s.SetValue(val)
-}
-
 // validate validates the Spinner widget.
 func (s *Spinner) validate() error {
 	if !s.data.initialized {
@@ -416,27 +408,6 @@ func (s *Spinner) validate() error {
 		return errors.New("spinner has not been initialized")
 	}
 	return nil
-}
-
-// writeData updates the bound data item as the result of changes in the spinner value.
-func (s *Spinner) writeData(data binding.DataItem) {
-	if data == nil {
-		return
-	}
-	floatTarget, ok := data.(binding.Float)
-	if !ok {
-		return
-	}
-	currentValue, err := floatTarget.Get()
-	if err != nil {
-		return
-	}
-	if currentValue != s.GetValue() {
-		err := floatTarget.Set(s.GetValue())
-		if err != nil {
-			fyne.LogError(fmt.Sprintf("Failed to set binding value to %f", s.GetValue()), err)
-		}
-	}
 }
 
 // SpinnerRenderer is the renderer for the Spinner widget
@@ -529,12 +500,30 @@ func (r *SpinnerRenderer) Refresh() {
 
 // downButtonClicked handles tap events for the Spinner's down button.
 func (s *Spinner) downButtonClicked() {
-	s.SetValue(s.data.value - s.data.step)
+	s.data.Decrement()
+	if s.Disabled() {
+		return
+	}
+	if s.data.value == s.data.min {
+		s.downButton.Disable()
+	} else {
+		s.downButton.Enable()
+	}
+	s.upButton.Enable()
 }
 
 // / upButtonClicked handles tap events for the Spinner's up button.
 func (s *Spinner) upButtonClicked() {
-	s.SetValue(s.data.value + s.data.step)
+	s.data.Increment()
+	if s.Disabled() {
+		return
+	}
+	if s.data.value == s.data.max {
+		s.upButton.Disable()
+	} else {
+		s.upButton.Enable()
+	}
+	s.downButton.Enable()
 }
 
 // maxTextSize calculates the larger of the canvas.Text sizes for the two string params
