@@ -12,7 +12,7 @@ var dVal int = 0
 
 type spinner struct {
 	disabled  bool
-	onChanged func(float64)
+	OnChanged func(float64)
 }
 
 func (s *spinner) Disable() {
@@ -28,11 +28,13 @@ func (s *spinner) Enable() {
 }
 
 func (s *spinner) GetOnChanged() func(float64) {
-	return s.onChanged
+	return s.OnChanged
 }
 
+func (s *spinner) Refresh() {}
+
 func TestSpinnerData_NewSpinnerData(t *testing.T) {
-	s := &spinner{}
+	s := &Spinner{}
 	d := NewSpinnerData(s, 1, 10, 2)
 
 	assert.Equal(t, 1., d.min)
@@ -88,7 +90,7 @@ func TestSpinnerData_Validate(t *testing.T) {
 
 func TestSpinnerData_SetValue(t *testing.T) {
 	s := &spinner{}
-	s.onChanged = func(v float64) {
+	s.OnChanged = func(v float64) {
 		val = v
 	}
 	d := NewSpinnerData(s, 1, 4, 1)
@@ -161,7 +163,7 @@ func TestSpinnerData_ValueChanged(t *testing.T) {
 	assert.Equal(t, 0., val)
 	assert.Equal(t, 1, dVal)
 
-	s.onChanged = func(v float64) {
+	s.OnChanged = func(v float64) {
 		val = v
 	}
 	d.Increment()

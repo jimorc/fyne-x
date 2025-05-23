@@ -8,14 +8,6 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 )
 
-// Spinnable is an interface for specifying if a widget is spinnable (i.e. is a spinner).
-type Spinnable interface {
-	fyne.Disableable
-	// GetOnChanged retrieves the function to execute when the SpinnerData object changes
-	// its value.
-	GetOnChanged() func(float64)
-}
-
 // SpinnerData contains the data used by various spinner widget types.
 type SpinnerData struct {
 	s     Spinnable
@@ -122,8 +114,7 @@ func (d *SpinnerData) SetMinMaxStep(min, max, step float64) {
 	d.step = step
 	d.initialized = d.Validate() == nil
 	if d.initialized {
-		//		d.s.Enable()
-		d.SetValue(min)
+		d.SetValue(d.min)
 	}
 }
 

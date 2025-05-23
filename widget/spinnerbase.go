@@ -1,0 +1,187 @@
+package widget
+
+import (
+	"fmt"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/theme"
+)
+
+// maxDecimals is the maximum number of decimal places that can be displayed.
+var maxDecimals uint = 6
+
+// Spinnable is an interface for specifying if a widget is spinnable (i.e. is a spinner).
+type Spinnable interface {
+	fyne.Disableable
+	// GetOnChanged retrieves the function to execute when the SpinnerData object changes
+	// its value.
+	GetOnChanged() func(float64)
+	// Refresh redisplays the Spinnable.
+	Refresh()
+}
+
+// SpinnerBase contains functionality that is common to all spinner widgets. It has a minimum,
+// maximum, step and current values along with spinnerButtons
+// to increment and decrement the spinner value.
+type SpinnerBase struct {
+	spinner    Spinnable
+	data       *SpinnerData
+	upButton   *SpinnerButton
+	downButton *SpinnerButton
+
+	format    string
+	OnChanged func(float64)
+}
+
+// NewSpinnerBase creates and initializes a new SpinnerBase object.
+//
+// Params:
+//
+//	s is the parent spinner object.
+//	min is the minimum spinner value. It may be < 0.
+//	max is the maximum spinner value. It must be > min.
+//	step is the amount that the spinner increases or decreases by. It must be > 0 and less than or equal to max - min.
+//	 decPlaces is the number of decimal places to display the value in. This value must be
+//
+// 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
+// If decPlaces == 0, then the value is displayed as an integer.
+//
+//	onChanged is the callback function that is called whenever the spinner value changes.
+func NewSpinnerBase(s Spinnable, min, max, step float64, decPlaces uint, onChanged func(float64)) *SpinnerBase {
+	base := &SpinnerBase{spinner: s, OnChanged: onChanged}
+
+	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.increment)
+	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.decrement)
+	base.data = NewSpinnerData(s, min, max, step)
+	if base.data.initialized {
+		s.Enable()
+		base.upButton.Enable()
+		base.downButton.Disable()
+	}
+	base.setFormat(decPlaces)
+	return base
+}
+
+// NewSpinnerBaseUninitialized returns a new uninitialized SpinnerBase object.
+//
+// An uninitialized Spinner widget is useful when you need to create a Spinner
+// but the initial settings are unknown.
+// Calling Enable on an uninitialized spinner will not enable the spinner; you
+// must first call SetMinMaxStep to initialize spinner values before enabling
+// the spinner widget.
+//
+// Params:
+//
+//	s is the parent spinner object.
+//	decPlaces is the number of decimal places to display the value in. This value must be
+//
+// 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
+// If decPlaces == 0, then the value is displayed as an integer.
+func NewSpinnerBaseUninitialized(s Spinnable, decPlaces uint) *SpinnerBase {
+	base := &SpinnerBase{spinner: s}
+	base.setFormat(decPlaces)
+	base.data = NewSpinnerData(s, 0, 0, 0)
+	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.increment)
+	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.decrement)
+	s.Disable()
+	base.upButton.Disable()
+	base.downButton.Disable()
+	return base
+}
+
+// NewSpinnerBaseWithData returns a new Spinner widget connected to the specified data source.
+//
+// Params:
+//
+//		min is the minimum spinner value. It may be < 0.
+//		max is the maximum spinner value. It must be > min.
+//		step is the amount that the spinner increases or decreases by. It must be > 0 and less than or equal to max - min.
+//	 	decPlaces is the number of decimal places to display the value in. This value must be
+//
+// 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
+// If decPlaces == 0, then the value is displayed as an integer.
+//
+//	data is the value that is bound to the spinner value.
+func NewSpinnerBaseWithData(s Spinnable, min, max, step float64,
+	decPlaces uint, data binding.Float) *SpinnerBase {
+	base := NewSpinnerBase(s, min, max, step, decPlaces, nil)
+	base.Bind(data)
+	return base
+}
+
+// Bind connects the specified data source to the Spinnable object.
+// The current value will be displayed and any changes in the data will cause the widget
+// to update.
+func (s *SpinnerBase) Bind(data binding.Float) {
+	s.data.Bind(data)
+}
+
+// DownButton returns a pointer to the SpinnerBase downButton.
+func (s *SpinnerBase) DownButton() *SpinnerButton {
+	return s.downButton
+}
+
+// GetOnChanged retrieves the onChanged function for the spinner.
+//
+// Implements the Spinnable interface.
+func (s *SpinnerBase) GetOnChanged() func(float64) {
+	return s.OnChanged
+}
+
+// Initialized returns true if the SpinnerBase's SpinnerData object has been initialized.
+func (s *SpinnerBase) Initialized() bool {
+	if s.data == nil {
+		return false
+	}
+	return s.data.initialized
+}
+
+// UpButton returns a pointer to the SpinnerBase upButton.
+func (s *SpinnerBase) UpButton() *SpinnerButton {
+	return s.upButton
+}
+func (s *SpinnerBase) Value() float64 {
+	return s.data.Value()
+}
+
+// decrement decrements the data's value by step amount, or to min if that is larger.
+func (s *SpinnerBase) decrement() {
+	s.data.Decrement()
+	if s.spinner.Disabled() {
+		return
+	}
+	s.downButton.EnableDisable(false, s.data.AtMin())
+	s.upButton.Enable()
+	s.spinner.Refresh()
+}
+
+// increment icrements the data's value by step amount, or to max if that is less.
+func (s *SpinnerBase) increment() {
+	s.data.Increment()
+	if s.spinner.Disabled() {
+		return
+	}
+	s.upButton.EnableDisable(false, s.data.AtMax())
+	s.downButton.Enable()
+	s.spinner.Refresh()
+}
+
+// setFormat determines the format to display the value in.
+//
+// Params:
+//
+//	decPlaces is the number of decimal places to display the value with.
+//	If decPlaces == 0, the value is displayed as an integer.
+//	If decPlaces > maxDecimals, it is set to maxDecimals.
+func (s *SpinnerBase) setFormat(decPlaces uint) {
+	if decPlaces > maxDecimals {
+		fyne.LogError(fmt.Sprintf("spinner decPlaces: %d too large. Set to %d", decPlaces, maxDecimals), nil)
+		decPlaces = maxDecimals
+	}
+	if decPlaces == 0 {
+		s.format = "%d"
+	} else {
+		s.format = fmt.Sprintf("%%.%df", decPlaces)
+	}
+}
