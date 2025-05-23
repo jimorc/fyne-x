@@ -137,12 +137,29 @@ func (s *SpinnerBase) Initialized() bool {
 	return s.data.initialized
 }
 
+// MaxText returns the max value as a formatted string.
+// This method is useful for determining the minimum required widget size.
+func (s *SpinnerBase) MaxText() string {
+	return formatAsText(s.data.max, s.format)
+}
+
+// MinText returns the min value as a formatted string.
+// This method is useful for determining the minimum required widget size
+func (s *SpinnerBase) MinText() string {
+	return formatAsText(s.data.min, s.format)
+}
+
 // UpButton returns a pointer to the SpinnerBase upButton.
 func (s *SpinnerBase) UpButton() *SpinnerButton {
 	return s.upButton
 }
 func (s *SpinnerBase) Value() float64 {
 	return s.data.Value()
+}
+
+// ValueText retrieves the spinner value as formatted text.
+func (s *SpinnerBase) ValueText() string {
+	return formatAsText(s.data.value, s.format)
 }
 
 // decrement decrements the data's value by step amount, or to min if that is larger.
@@ -183,5 +200,20 @@ func (s *SpinnerBase) setFormat(decPlaces uint) {
 		s.format = "%d"
 	} else {
 		s.format = fmt.Sprintf("%%.%df", decPlaces)
+	}
+}
+
+// formatAsText formats the value according to the specified format.
+//
+// Params:
+//
+//	value is the value to format.
+//	format is the format to use. This format should be either "%d", or "%.nf"
+//	where n is either an empty string or an integer.
+func formatAsText(value float64, format string) string {
+	if format == "%d" {
+		return fmt.Sprintf(format, int(value))
+	} else {
+		return fmt.Sprintf(format, value)
 	}
 }

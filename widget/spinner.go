@@ -2,9 +2,7 @@ package widget
 
 import (
 	"errors"
-	"fmt"
 	"image/color"
-	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -110,8 +108,7 @@ func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 	box := canvas.NewRectangle(th.Color(theme.ColorNameBackground, v))
 	border := canvas.NewRectangle(color.Transparent)
 
-	value := fmt.Sprintf(s.base.format, s.base.Value())
-	text := canvas.NewText(value, th.Color(theme.ColorNameForeground, v))
+	text := canvas.NewText(s.base.ValueText(), th.Color(theme.ColorNameForeground, v))
 	text.Alignment = fyne.TextAlignTrailing
 
 	objects := []fyne.CanvasObject{
@@ -183,10 +180,6 @@ func (s *Spinner) GetOnChanged() func(float64) {
 			s.Refresh()
 		}
 	}
-}
-
-func (s *Spinner) GetFormat() string {
-	return s.base.format
 }
 
 // MinSize returns the minimum size of the Spinner widget. The minimum size is calculated
@@ -343,16 +336,7 @@ func (s *Spinner) requestFocus() {
 // The size cannot be larger than the larger of the sizes required to display the
 // spinner's min and max values.
 func (s *Spinner) textSize() fyne.Size {
-	var minVal, maxVal string
-	if strings.Contains(s.base.format, "%d") ||
-		strings.Contains(s.base.format, "%+d") {
-		minVal = fmt.Sprintf(s.base.format, int(s.base.data.min))
-		maxVal = fmt.Sprintf(s.base.format, int(s.base.data.max))
-	} else {
-		minVal = fmt.Sprintf(s.base.format, s.base.data.min)
-		maxVal = fmt.Sprintf(s.base.format, s.base.data.max)
-	}
-	return maxTextSize(minVal, maxVal)
+	return maxTextSize(s.base.MinText(), s.base.MaxText())
 }
 
 // validate validates the Spinner widget.
@@ -447,12 +431,7 @@ func (r *SpinnerRenderer) Refresh() {
 		r.border.StrokeColor = th.Color(theme.ColorNameError, v)
 	}
 
-	if strings.Contains(r.spinner.base.format, "%d") ||
-		strings.Contains(r.spinner.base.format, "%+d") {
-		r.text.Text = fmt.Sprintf(r.spinner.base.format, int(r.spinner.base.Value()))
-	} else {
-		r.text.Text = fmt.Sprintf(r.spinner.base.format, r.spinner.base.Value())
-	}
+	r.text.Text = r.spinner.base.ValueText()
 	r.text.Color = th.Color(fgColor, v)
 	r.text.Refresh()
 }
