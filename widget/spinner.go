@@ -14,12 +14,11 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-//var _ fyne.Disableable = (*Spinner)(nil)
-/*var _ fyne.Focusable = (*Spinner)(nil)
+var _ fyne.Disableable = (*Spinner)(nil)
+var _ fyne.Focusable = (*Spinner)(nil)
 var _ fyne.Tappable = (*Spinner)(nil)
 var _ desktop.Mouseable = (*Spinner)(nil)
 var _ fyne.Scrollable = (*Spinner)(nil)
-*/
 var _ Spinnable = (*Spinner)(nil)
 
 // Spinner widget has a minimum, maximum, step and current values along with spinnerButtons
@@ -50,14 +49,6 @@ type Spinner struct {
 func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64)) *Spinner {
 	s := &Spinner{}
 	s.base = NewSpinnerBase(s, min, max, step, decPlaces, onChanged)
-	//	s.ExtendBaseWidget(s)
-	/*	s.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), s.increment)
-		s.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), s.decrement)
-		s.data = NewSpinnerData(s, min, max, step)
-		if s.data.initialized {
-			s.Enable()
-		}
-		s.setFormat(decPlaces)*/
 	return s
 }
 
@@ -78,7 +69,7 @@ func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64))
 func NewSpinnerUninitialized(decPlaces uint) *Spinner {
 	s := &Spinner{}
 	s.base = NewSpinnerBaseUninitialized(s, decPlaces)
-	//	s.ExtendBaseWidget(s)
+	s.ExtendBaseWidget(s)
 	s.Disable()
 	return s
 }
@@ -189,8 +180,6 @@ func (s *Spinner) GetOnChanged() func(float64) {
 			s.OnChanged(s.Value())
 		}
 		if s.base != nil && s.base.data != nil {
-			s.base.UpButton().EnableDisable(s.Disabled(), s.base.data.AtMax())
-			s.base.DownButton().EnableDisable(s.Disabled(), s.base.data.AtMin())
 			s.Refresh()
 		}
 	}
