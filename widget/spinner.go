@@ -45,8 +45,8 @@ type Spinner struct {
 //
 //	onChanged is the callback function that is called whenever the spinner value changes.
 func NewSpinner(min, max, step float64, decPlaces uint, onChanged func(float64)) *Spinner {
-	s := &Spinner{}
-	s.base = NewSpinnerBase(s, min, max, step, decPlaces, onChanged)
+	s := &Spinner{OnChanged: onChanged}
+	s.base = NewSpinnerBase(s, min, max, step, decPlaces)
 	return s
 }
 
@@ -234,7 +234,7 @@ func (s *Spinner) Scrolled(evt *fyne.ScrollEvent) {
 // If the previously set value is greater than max, then the value is set to max.
 func (s *Spinner) SetMinMaxStep(min, max, step float64) {
 	if s.base.data == nil {
-		s.base.data = NewSpinnerData(s, min, max, step)
+		s.base.data = NewSpinnerData(s.base, min, max, step)
 		s.Refresh()
 		return
 	}
@@ -248,9 +248,7 @@ func (s *Spinner) SetValue(val float64) {
 	if s.Disabled() {
 		return
 	}
-	s.base.data.SetValue(val)
-	s.base.UpButton().EnableDisable(false, s.base.data.AtMax())
-	s.base.DownButton().EnableDisable(false, s.base.data.AtMin())
+	s.base.SetValue(val)
 	s.Refresh()
 }
 
@@ -269,9 +267,6 @@ func (s *Spinner) Tapped(evt *fyne.PointEvent) {
 	} else {
 		return
 	}
-
-	s.base.UpButton().EnableDisable(false, s.base.data.AtMax())
-	s.base.DownButton().EnableDisable(false, s.base.data.AtMin())
 	s.Refresh()
 }
 

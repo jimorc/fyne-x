@@ -10,7 +10,7 @@ import (
 
 func TestNewSpinnerBase(t *testing.T) {
 	s := &Spinner{}
-	b := NewSpinnerBase(s, 1., 5., 1.5, 0, nil)
+	b := NewSpinnerBase(s, 1., 5., 1.5, 0)
 	assert.Equal(t, 1., b.data.min)
 	assert.Equal(t, 5., b.data.max)
 	assert.Equal(t, 1.5, b.data.step)
@@ -21,22 +21,22 @@ func TestNewSpinnerBase(t *testing.T) {
 
 func TestNewSpinnerBase_BadArgs(t *testing.T) {
 	s := &Spinner{}
-	b := NewSpinnerBase(s, 5., 5., 1., 0, nil)
+	b := NewSpinnerBase(s, 5., 5., 1., 0)
 	assert.False(t, b.data.initialized, "spinner should not be initialized when max = min")
 
-	b = NewSpinnerBase(s, 5., 4., 1., 0, nil)
+	b = NewSpinnerBase(s, 5., 4., 1., 0)
 	assert.False(t, b.data.initialized, "spinner should not be initialized when min > max")
 
-	b = NewSpinnerBase(s, 1., 5., 0., 0, nil)
+	b = NewSpinnerBase(s, 1., 5., 0., 0)
 	assert.False(t, b.data.initialized, "spinner should not be initialized when step = 0")
 
-	b = NewSpinnerBase(s, 1., 5., -5., 0, nil)
+	b = NewSpinnerBase(s, 1., 5., -5., 0)
 	assert.False(t, b.data.initialized, "spinner should not be initialized when step < 0")
 
-	b = NewSpinnerBase(s, 1., 5., 5., 0, nil)
+	b = NewSpinnerBase(s, 1., 5., 5., 0)
 	assert.False(t, b.data.initialized, "spinner should not be initialized when step > max - min")
 
-	b = NewSpinnerBase(s, 1., 5., 2., 11, nil)
+	b = NewSpinnerBase(s, 1., 5., 2., 11)
 	assert.Equal(t, fmt.Sprintf("%%.%df", maxDecimals), b.format)
 	assert.True(t, b.data.initialized)
 }
@@ -60,4 +60,22 @@ func TestNewSpinnerBaseWithData(t *testing.T) {
 	assert.NoError(t, err)
 	waitForBinding()
 	assert.Equal(t, 3.1, b.data.Value())
+}
+
+func TestNewSpinnerBase_SetValue(t *testing.T) {
+	s := &Spinner{}
+	b := NewSpinnerBase(s, 1., 5., 1., 0)
+	assert.Equal(t, 1., b.Value())
+	assert.True(t, b.DownButton().Disabled())
+	assert.False(t, b.UpButton().Disabled())
+
+	b.SetValue(3.)
+	assert.Equal(t, 3., b.Value())
+	assert.False(t, b.DownButton().Disabled())
+	assert.False(t, b.UpButton().Disabled())
+
+	b.SetValue(5.)
+	assert.Equal(t, 5., b.Value())
+	assert.False(t, b.DownButton().Disabled())
+	assert.True(t, b.UpButton().Disabled())
 }

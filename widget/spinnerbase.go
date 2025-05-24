@@ -30,8 +30,7 @@ type SpinnerBase struct {
 	upButton   *SpinnerButton
 	downButton *SpinnerButton
 
-	format    string
-	OnChanged func(float64)
+	format string
 }
 
 // NewSpinnerBase creates and initializes a new SpinnerBase object.
@@ -48,12 +47,12 @@ type SpinnerBase struct {
 // If decPlaces == 0, then the value is displayed as an integer.
 //
 //	onChanged is the callback function that is called whenever the spinner value changes.
-func NewSpinnerBase(s Spinnable, min, max, step float64, decPlaces uint, onChanged func(float64)) *SpinnerBase {
-	base := &SpinnerBase{spinner: s, OnChanged: onChanged}
+func NewSpinnerBase(s Spinnable, min, max, step float64, decPlaces uint) *SpinnerBase {
+	base := &SpinnerBase{spinner: s}
 
 	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.increment)
 	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.decrement)
-	base.data = NewSpinnerData(s, min, max, step)
+	base.data = NewSpinnerData(base, min, max, step)
 	if base.data.initialized {
 		s.Enable()
 		base.upButton.Enable()
@@ -81,9 +80,11 @@ func NewSpinnerBase(s Spinnable, min, max, step float64, decPlaces uint, onChang
 func NewSpinnerBaseUninitialized(s Spinnable, decPlaces uint) *SpinnerBase {
 	base := &SpinnerBase{spinner: s}
 	base.setFormat(decPlaces)
-	base.data = NewSpinnerData(s, 0, 0, 0)
+	base.data = NewSpinnerData(base, 0, 0, 0)
 	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.increment)
 	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.decrement)
+	base.upButton.EnableDisable(base.spinner.Disabled(), base.data.AtMax())
+	base.downButton.EnableDisable(base.spinner.Disabled(), base.data.AtMin())
 	s.Disable()
 	base.upButton.Disable()
 	base.downButton.Disable()
@@ -105,7 +106,7 @@ func NewSpinnerBaseUninitialized(s Spinnable, decPlaces uint) *SpinnerBase {
 //	data is the value that is bound to the spinner value.
 func NewSpinnerBaseWithData(s Spinnable, min, max, step float64,
 	decPlaces uint, data binding.Float) *SpinnerBase {
-	base := NewSpinnerBase(s, min, max, step, decPlaces, nil)
+	base := NewSpinnerBase(s, min, max, step, decPlaces)
 	base.Bind(data)
 	return base
 }
@@ -122,11 +123,29 @@ func (s *SpinnerBase) DownButton() *SpinnerButton {
 	return s.downButton
 }
 
+// EnableDisableButtons enables or disables the up and down buttons based on whether
+// the parent spinner is disabled and on whether the data value is equal to max or min.
+func (s *SpinnerBase) EnableDisableButtons(spinnerDisabled bool) {
+	s.upButton.EnableDisable(spinnerDisabled, s.data.AtMax())
+	s.downButton.EnableDisable(spinnerDisabled, s.data.AtMin())
+}
+
 // GetOnChanged retrieves the onChanged function for the spinner.
 //
 // Implements the Spinnable interface.
 func (s *SpinnerBase) GetOnChanged() func(float64) {
-	return s.OnChanged
+	if s.data != nil {
+		return func(float64) {
+			s.downButton.EnableDisable(false, s.data.AtMin())
+			s.upButton.EnableDisable(false, s.data.AtMax())
+			spinnerOnChanged := s.spinner.GetOnChanged()
+			if spinnerOnChanged != nil {
+				spinnerOnChanged(s.data.Value())
+			}
+		}
+
+	}
+	return func(float64) {}
 }
 
 // Initialized returns true if the SpinnerBase's SpinnerData object has been initialized.
@@ -147,6 +166,15 @@ func (s *SpinnerBase) MaxText() string {
 // This method is useful for determining the minimum required widget size
 func (s *SpinnerBase) MinText() string {
 	return formatAsText(s.data.min, s.format)
+}
+
+func (s *SpinnerBase) SetValue(value float64) {
+	s.data.SetValue(value)
+	if s.spinner.Disabled() {
+		return
+	}
+	s.upButton.EnableDisable(false, s.data.AtMax())
+	s.downButton.EnableDisable(false, s.data.AtMin())
 }
 
 // UpButton returns a pointer to the SpinnerBase upButton.

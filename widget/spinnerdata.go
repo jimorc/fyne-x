@@ -10,7 +10,7 @@ import (
 
 // SpinnerData contains the data used by various spinner widget types.
 type SpinnerData struct {
-	s     Spinnable
+	base  *SpinnerBase
 	value float64
 	min   float64
 	max   float64
@@ -34,8 +34,8 @@ type SpinnerData struct {
 //
 // 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
 // If decPlaces == 0, then the value is displayed as an integer.
-func NewSpinnerData(spinnable Spinnable, min, max, step float64) *SpinnerData {
-	d := NewSpinnerDataUninitialized(spinnable)
+func NewSpinnerData(base *SpinnerBase, min, max, step float64) *SpinnerData {
+	d := NewSpinnerDataUninitialized(base)
 	d.SetMinMaxStep(min, max, step)
 	return d
 }
@@ -49,17 +49,17 @@ func NewSpinnerData(spinnable Spinnable, min, max, step float64) *SpinnerData {
 //
 // 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
 // If decPlaces == 0, then the value is displayed as an integer.
-func NewSpinnerDataUninitialized(spinnable Spinnable) *SpinnerData {
+func NewSpinnerDataUninitialized(base *SpinnerBase) *SpinnerData {
 	d := &SpinnerData{
-		s:           spinnable,
+		base:        base,
 		initialized: false,
 	}
 	return d
 }
 
-func NewSpinnerDataWithData(s Spinnable, min, max, step float64,
+func NewSpinnerDataWithData(base *SpinnerBase, min, max, step float64,
 	data binding.Float) *SpinnerData {
-	d := NewSpinnerData(s, min, max, step)
+	d := NewSpinnerData(base, min, max, step)
 
 	d.Bind(data)
 	return d
@@ -122,7 +122,10 @@ func (d *SpinnerData) SetMinMaxStep(min, max, step float64) {
 // If the value is less than object's min value, the value is set to min.
 // If the value is greater than object's max value, the value is set to max.
 func (d *SpinnerData) SetValue(value float64) {
-	if d.s.Disabled() {
+	if d.base.spinner.Disabled() {
+		return
+	}
+	if d.value == value {
 		return
 	}
 	d.value = value
@@ -188,9 +191,9 @@ func (d *SpinnerData) valueChanged() {
 	if d.onChanged != nil {
 		d.onChanged(d.value)
 	}
-	spinnerOnChanged := d.s.GetOnChanged()
-	if spinnerOnChanged != nil {
-		spinnerOnChanged(d.value)
+	spinnerBaseOnChanged := d.base.GetOnChanged()
+	if spinnerBaseOnChanged != nil {
+		spinnerBaseOnChanged(d.value)
 	}
 }
 
