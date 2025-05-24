@@ -62,7 +62,7 @@ func TestNewSpinnerBaseWithData(t *testing.T) {
 	assert.Equal(t, 3.1, b.data.Value())
 }
 
-func TestNewSpinnerBase_SetValue(t *testing.T) {
+func TestSpinnerBase_SetValue(t *testing.T) {
 	s := &Spinner{}
 	b := NewSpinnerBase(s, 1., 5., 1., 0)
 	assert.Equal(t, 1., b.Value())
@@ -78,4 +78,24 @@ func TestNewSpinnerBase_SetValue(t *testing.T) {
 	assert.Equal(t, 5., b.Value())
 	assert.False(t, b.DownButton().Disabled())
 	assert.True(t, b.UpButton().Disabled())
+}
+
+func TestSpinnerBase_SetMinMaxStep(t *testing.T) {
+	s := &Spinner{}
+	b := NewSpinnerBase(s, 1., 5., 1., 0)
+	b.SetMinMaxStep(2., 10., 2.)
+	assert.Equal(t, 2., b.Value())
+	assert.Equal(t, 2., b.data.min)
+	assert.Equal(t, 10., b.data.max)
+	assert.Equal(t, 2., b.data.step)
+	assert.True(t, b.downButton.Disabled())
+	assert.False(t, b.upButton.Disabled())
+
+	b.SetMinMaxStep(0., 12., 2.)
+	assert.Equal(t, 0., b.Value())
+	assert.Equal(t, 0., b.data.min)
+	assert.Equal(t, 12., b.data.max)
+	assert.Equal(t, 2., b.data.step)
+	assert.True(t, b.downButton.Disabled())
+	assert.False(t, b.upButton.Disabled())
 }

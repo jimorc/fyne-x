@@ -168,6 +168,16 @@ func (s *SpinnerBase) MinText() string {
 	return formatAsText(s.data.min, s.format)
 }
 
+func (s *SpinnerBase) SetMinMaxStep(min, max, step float64) {
+	if s.data == nil {
+		s.data = NewSpinnerData(s, min, max, step)
+		return
+	}
+	s.data.SetMinMaxStep(min, max, step)
+	s.upButton.EnableDisable(s.spinner.Disabled(), s.data.AtMax())
+	s.downButton.EnableDisable(s.spinner.Disabled(), s.data.AtMin())
+}
+
 func (s *SpinnerBase) SetValue(value float64) {
 	s.data.SetValue(value)
 	if s.spinner.Disabled() {

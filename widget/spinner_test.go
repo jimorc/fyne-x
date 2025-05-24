@@ -158,6 +158,8 @@ func TestSpinner_SetMinMaxStep(t *testing.T) {
 	assert.Equal(t, 0., s.base.data.min)
 	assert.Equal(t, 10., s.base.data.max)
 	assert.Equal(t, 1., s.base.data.step)
+	assert.False(t, s.base.UpButton().Disabled())
+	assert.True(t, s.base.DownButton().Disabled())
 }
 
 func TestSpinner_SetMinMaxStep_BadArgs(t *testing.T) {

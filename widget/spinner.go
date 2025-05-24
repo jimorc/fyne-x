@@ -233,12 +233,7 @@ func (s *Spinner) Scrolled(evt *fyne.ScrollEvent) {
 // If the previously set value is less than min, then the value is set to min.
 // If the previously set value is greater than max, then the value is set to max.
 func (s *Spinner) SetMinMaxStep(min, max, step float64) {
-	if s.base.data == nil {
-		s.base.data = NewSpinnerData(s.base, min, max, step)
-		s.Refresh()
-		return
-	}
-	s.base.data.SetMinMaxStep(min, max, step)
+	s.base.SetMinMaxStep(min, max, step)
 	s.Refresh()
 }
 
