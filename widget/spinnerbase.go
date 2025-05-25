@@ -238,7 +238,7 @@ func (s *SpinnerBase) ValueText() string {
 
 // Decrement decrements the data's value by step amount, or to min if that is larger.
 func (s *SpinnerBase) Decrement() {
-	s.data.Decrement()
+	s.data.decrement()
 	if s.spinner.Disabled() {
 		return
 	}
@@ -249,7 +249,7 @@ func (s *SpinnerBase) Decrement() {
 
 // Increment icrements the data's value by step amount, or to max if that is less.
 func (s *SpinnerBase) Increment() {
-	s.data.Increment()
+	s.data.increment()
 	if s.spinner.Disabled() {
 		return
 	}

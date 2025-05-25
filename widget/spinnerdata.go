@@ -88,12 +88,12 @@ func (d *spinnerData) bind(data binding.Float) {
 }
 
 // Decrement decrements the SpinnerData object's value by its step size.
-func (d *spinnerData) Decrement() {
+func (d *spinnerData) decrement() {
 	d.SetValue(d.value - d.step)
 }
 
 // Increment increments the SpinnerData object's value by its step size.
-func (d *spinnerData) Increment() {
+func (d *spinnerData) increment() {
 	d.SetValue(d.value + d.step)
 }
 
