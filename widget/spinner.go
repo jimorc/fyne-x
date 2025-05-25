@@ -130,7 +130,7 @@ func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 
 // Decrement decrements the spinner's value by its step value.
 func (s *Spinner) Decrement() {
-	s.base.decrement()
+	s.base.Decrement()
 }
 
 // Disable disables the Spinner and its buttons.
@@ -189,7 +189,7 @@ func (s *Spinner) GetOnChanged() func(float64) {
 
 // Increment increments the spinner's value by its step value.
 func (s *Spinner) Increment() {
-	s.base.increment()
+	s.base.Increment()
 }
 
 // MinSize returns the minimum size of the Spinner widget. The minimum size is calculated

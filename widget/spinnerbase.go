@@ -50,8 +50,8 @@ type SpinnerBase struct {
 func NewSpinnerBase(s Spinnable, min, max, step float64, decPlaces uint) *SpinnerBase {
 	base := &SpinnerBase{spinner: s}
 
-	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.increment)
-	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.decrement)
+	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.Increment)
+	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.Decrement)
 	base.data = NewSpinnerData(base, min, max, step)
 	if base.data.initialized {
 		s.Enable()
@@ -81,8 +81,8 @@ func NewSpinnerBaseUninitialized(s Spinnable, decPlaces uint) *SpinnerBase {
 	base := &SpinnerBase{spinner: s}
 	base.setFormat(decPlaces)
 	base.data = NewSpinnerData(base, 0, 0, 0)
-	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.increment)
-	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.decrement)
+	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.Increment)
+	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.Decrement)
 	base.upButton.EnableDisable(base.spinner.Disabled(), base.data.AtMax())
 	base.downButton.EnableDisable(base.spinner.Disabled(), base.data.AtMin())
 	s.Disable()
@@ -200,8 +200,8 @@ func (s *SpinnerBase) ValueText() string {
 	return formatAsText(s.data.value, s.format)
 }
 
-// decrement decrements the data's value by step amount, or to min if that is larger.
-func (s *SpinnerBase) decrement() {
+// Decrement decrements the data's value by step amount, or to min if that is larger.
+func (s *SpinnerBase) Decrement() {
 	s.data.Decrement()
 	if s.spinner.Disabled() {
 		return
@@ -211,8 +211,8 @@ func (s *SpinnerBase) decrement() {
 	s.spinner.Refresh()
 }
 
-// increment icrements the data's value by step amount, or to max if that is less.
-func (s *SpinnerBase) increment() {
+// Increment icrements the data's value by step amount, or to max if that is less.
+func (s *SpinnerBase) Increment() {
 	s.data.Increment()
 	if s.spinner.Disabled() {
 		return
