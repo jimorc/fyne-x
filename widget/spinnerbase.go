@@ -223,7 +223,7 @@ func (s *SpinnerBase) UpButton() *spinnerButton {
 
 // Validate validates the spinnerData values.
 func (s *SpinnerBase) Validate() error {
-	return s.data.Validate()
+	return s.data.validate()
 }
 
 // Value returns the spinnerData value.

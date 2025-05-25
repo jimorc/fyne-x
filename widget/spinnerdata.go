@@ -112,7 +112,7 @@ func (d *spinnerData) setMinMaxStep(min, max, step float64) {
 	d.min = min
 	d.max = max
 	d.step = step
-	d.initialized = d.Validate() == nil
+	d.initialized = d.validate() == nil
 	if d.initialized {
 		d.setValue(d.min)
 	}
@@ -146,7 +146,7 @@ func (d *spinnerData) unbind() {
 }
 
 // Validate validates the spinnerData settings.
-func (d *spinnerData) Validate() error {
+func (d *spinnerData) validate() error {
 	if d.min == 0. && d.max == 0. && d.step == 0. {
 		return errors.New("spinner not initialized")
 	}

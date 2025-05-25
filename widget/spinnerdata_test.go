@@ -70,26 +70,26 @@ func TestSpinnerData_Validate(t *testing.T) {
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
 	d := newSpinnerData(b, 1, 2, 1)
-	err := d.Validate()
+	err := d.validate()
 	assert.Nil(t, err)
 
 	d = newSpinnerDataUninitialized(b)
-	err = d.Validate()
+	err = d.validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner not initialized", err.Error())
 
 	d = newSpinnerData(b, 2, 2, 1)
-	err = d.Validate()
+	err = d.validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner max value must be greater than min value", err.Error())
 
 	d = newSpinnerData(b, 1, 2, 0)
-	err = d.Validate()
+	err = d.validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner step must be greater than 0", err.Error())
 
 	d = newSpinnerData(b, 1, 2, 3)
-	err = d.Validate()
+	err = d.validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner step must be less than or equal to max - min", err.Error())
 }
