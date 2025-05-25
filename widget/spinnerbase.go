@@ -187,6 +187,11 @@ func (s *SpinnerBase) SetValue(value float64) {
 	s.downButton.EnableDisable(false, s.data.AtMin())
 }
 
+// Unbind removes the binding from the spinner data.
+func (s *SpinnerBase) Unbind() {
+	s.data.Unbind()
+}
+
 // UpButton returns a pointer to the SpinnerBase upButton.
 func (s *SpinnerBase) UpButton() *SpinnerButton {
 	return s.upButton

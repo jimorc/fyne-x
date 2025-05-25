@@ -298,7 +298,7 @@ func (s *Spinner) TypedRune(rune rune) {
 // Unbind disconnects any configured data source from this spinner.
 // The current value will remain at the last value of the data source.
 func (s *Spinner) Unbind() {
-	s.base.data.Unbind()
+	s.base.Unbind()
 }
 
 // Value retrieves the current Spinner value.
