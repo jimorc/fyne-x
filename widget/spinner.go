@@ -148,7 +148,7 @@ func (s *Spinner) Enable() {
 	}
 
 	s.DisableableWidget.Enable()
-	s.SetValue(s.base.Value())
+	s.SetValue(s.Value())
 	s.Refresh()
 }
 

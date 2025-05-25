@@ -122,7 +122,7 @@ func (d *SpinnerData) SetMinMaxStep(min, max, step float64) {
 // If the value is less than object's min value, the value is set to min.
 // If the value is greater than object's max value, the value is set to max.
 func (d *SpinnerData) SetValue(value float64) {
-	if d.base.spinner.Disabled() {
+	if d.base.spinner.Disabled() || !d.initialized {
 		return
 	}
 	if d.value == value {
@@ -162,9 +162,19 @@ func (d *SpinnerData) Validate() error {
 	return nil
 }
 
-// Value retrieves the value set in the SpinnerData object.
+// Value retrieves the value set in the SpinnerData object. If outside the min to max
+// range, the value will be set to either min or max as appropriate.
 func (d *SpinnerData) Value() float64 {
-	return d.value
+	value := d.value
+	if !d.initialized || value < d.min {
+		d.SetValue(d.min)
+		value = d.min
+	}
+	if value > d.max {
+		d.SetValue(d.max)
+		value = d.max
+	}
+	return value
 }
 
 // updateFromData updates the spinner to the value set in the bound data.
