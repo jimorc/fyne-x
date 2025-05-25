@@ -193,7 +193,7 @@ func (s *SpinnerBase) SetMinMaxStep(min, max, step float64) {
 		s.data = newSpinnerData(s, min, max, step)
 		return
 	}
-	s.data.SetMinMaxStep(min, max, step)
+	s.data.setMinMaxStep(min, max, step)
 	s.upButton.enableDisable(s.spinner.Disabled(), s.data.atMax())
 	s.downButton.enableDisable(s.spinner.Disabled(), s.data.atMin())
 }

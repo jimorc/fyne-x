@@ -190,14 +190,14 @@ func TestSpinnerData_SetMinMaxStep(t *testing.T) {
 	b := &SpinnerBase{spinner: s}
 	d := newSpinnerDataUninitialized(b)
 	assert.False(t, d.initialized)
-	d.SetMinMaxStep(4, 1, 1)
+	d.setMinMaxStep(4, 1, 1)
 	assert.False(t, d.initialized)
 	assert.Equal(t, 4., d.min)
 	assert.Equal(t, 1., d.max)
 	assert.Equal(t, 1., d.step)
 	assert.Equal(t, 1., d.Value())
 
-	d.SetMinMaxStep(1, 4, 1)
+	d.setMinMaxStep(1, 4, 1)
 	assert.True(t, d.initialized)
 	assert.Equal(t, 1., d.min)
 	assert.Equal(t, 4., d.max)

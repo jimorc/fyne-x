@@ -36,7 +36,7 @@ type spinnerData struct {
 // If decPlaces == 0, then the value is displayed as an integer.
 func newSpinnerData(base *SpinnerBase, min, max, step float64) *spinnerData {
 	d := newSpinnerDataUninitialized(base)
-	d.SetMinMaxStep(min, max, step)
+	d.setMinMaxStep(min, max, step)
 	return d
 }
 
@@ -108,7 +108,7 @@ func (d *spinnerData) increment() {
 //
 // If the previously set value is less than min, then the value is set to min.
 // If the previously set value is greater than max, then the value is set to max.
-func (d *spinnerData) SetMinMaxStep(min, max, step float64) {
+func (d *spinnerData) setMinMaxStep(min, max, step float64) {
 	d.min = min
 	d.max = max
 	d.step = step
