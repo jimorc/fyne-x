@@ -45,7 +45,7 @@ func (b *spinnerButton) Move(pos fyne.Position) {
 //		limit indicates whether the spinner's value is at the corresponding limit for this
 //	 button. For example, for an up button, the  limit should be true if value == max, and
 //	 for a down button, the limit should be true if value == min.
-func (b *spinnerButton) EnableDisable(parentDisabled, limit bool) {
+func (b *spinnerButton) enableDisable(parentDisabled, limit bool) {
 	if parentDisabled {
 		b.Disable()
 	} else {

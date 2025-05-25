@@ -33,15 +33,15 @@ func TestSpinnerButton_Move(t *testing.T) {
 
 func TestSpinnerButton_EnableDisable(t *testing.T) {
 	b := newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), nil)
-	b.EnableDisable(false, false)
+	b.enableDisable(false, false)
 	assert.False(t, b.Disabled())
 
-	b.EnableDisable(true, false)
+	b.enableDisable(true, false)
 	assert.True(t, b.Disabled())
 
-	b.EnableDisable(false, true)
+	b.enableDisable(false, true)
 	assert.True(t, b.Disabled())
 
-	b.EnableDisable(true, true)
+	b.enableDisable(true, true)
 	assert.True(t, b.Disabled())
 }
