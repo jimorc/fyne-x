@@ -128,6 +128,11 @@ func (s *Spinner) CreateRenderer() fyne.WidgetRenderer {
 	return r
 }
 
+// Decrement decrements the spinner's value by its step value.
+func (s *Spinner) Decrement() {
+	s.base.decrement()
+}
+
 // Disable disables the Spinner and its buttons.
 func (s *Spinner) Disable() {
 	if s.Disabled() {
@@ -182,6 +187,11 @@ func (s *Spinner) GetOnChanged() func(float64) {
 	}
 }
 
+// Increment increments the spinner's value by its step value.
+func (s *Spinner) Increment() {
+	s.base.increment()
+}
+
 // MinSize returns the minimum size of the Spinner widget. The minimum size is calculated
 // based on the maximum width that the value could require based on its format.
 func (s *Spinner) MinSize() fyne.Size {
@@ -216,9 +226,9 @@ func (s *Spinner) Scrolled(evt *fyne.ScrollEvent) {
 		return
 	}
 	if evt.Scrolled.DY > 0 {
-		s.base.data.SetValue(s.base.data.value + s.base.data.step)
+		s.Increment()
 	} else if evt.Scrolled.DY < 0 {
-		s.SetValue(s.base.data.value - s.base.data.step)
+		s.Decrement()
 	}
 }
 
@@ -276,9 +286,9 @@ func (s *Spinner) TypedKey(key *fyne.KeyEvent) {
 	}
 	switch key.Name {
 	case fyne.KeyUp:
-		s.base.increment()
+		s.Increment()
 	case fyne.KeyDown:
-		s.base.decrement()
+		s.Decrement()
 	default:
 		return
 	}
@@ -295,9 +305,9 @@ func (s *Spinner) TypedRune(rune rune) {
 	}
 	switch rune {
 	case '+':
-		s.base.increment()
+		s.Increment()
 	case '-':
-		s.base.decrement()
+		s.Decrement()
 	default:
 		return
 	}
