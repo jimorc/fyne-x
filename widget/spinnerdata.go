@@ -35,12 +35,12 @@ type spinnerData struct {
 // 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
 // If decPlaces == 0, then the value is displayed as an integer.
 func newSpinnerData(base *SpinnerBase, min, max, step float64) *spinnerData {
-	d := NewSpinnerDataUninitialized(base)
+	d := newSpinnerDataUninitialized(base)
 	d.SetMinMaxStep(min, max, step)
 	return d
 }
 
-// NewSpinnerDataUninitialized creates an uninitialized spinnerData object.
+// newSpinnerDataUninitialized creates an uninitialized spinnerData object.
 //
 // Params:
 //
@@ -49,7 +49,7 @@ func newSpinnerData(base *SpinnerBase, min, max, step float64) *spinnerData {
 //
 // 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
 // If decPlaces == 0, then the value is displayed as an integer.
-func NewSpinnerDataUninitialized(base *SpinnerBase) *spinnerData {
+func newSpinnerDataUninitialized(base *SpinnerBase) *spinnerData {
 	d := &spinnerData{
 		base:        base,
 		initialized: false,

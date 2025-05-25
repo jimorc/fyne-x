@@ -62,7 +62,7 @@ func TestSpinnerData_InvalidArgs(t *testing.T) {
 func TestSpinnerDataUninitialized(t *testing.T) {
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerDataUninitialized(b)
+	d := newSpinnerDataUninitialized(b)
 	assert.False(t, d.initialized)
 }
 
@@ -73,7 +73,7 @@ func TestSpinnerData_Validate(t *testing.T) {
 	err := d.Validate()
 	assert.Nil(t, err)
 
-	d = NewSpinnerDataUninitialized(b)
+	d = newSpinnerDataUninitialized(b)
 	err = d.Validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner not initialized", err.Error())
@@ -188,7 +188,7 @@ func TestSpinnerData_ValueChanged(t *testing.T) {
 func TestSpinnerData_SetMinMaxStep(t *testing.T) {
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerDataUninitialized(b)
+	d := newSpinnerDataUninitialized(b)
 	assert.False(t, d.initialized)
 	d.SetMinMaxStep(4, 1, 1)
 	assert.False(t, d.initialized)
