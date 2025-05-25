@@ -27,8 +27,8 @@ type Spinnable interface {
 type SpinnerBase struct {
 	spinner    Spinnable
 	data       *spinnerData
-	upButton   *SpinnerButton
-	downButton *SpinnerButton
+	upButton   *spinnerButton
+	downButton *spinnerButton
 
 	format string
 }
@@ -129,7 +129,7 @@ func (s *SpinnerBase) Bind(data binding.Float) {
 }
 
 // DownButton returns a pointer to the SpinnerBase downButton.
-func (s *SpinnerBase) DownButton() *SpinnerButton {
+func (s *SpinnerBase) DownButton() *spinnerButton {
 	return s.downButton
 }
 
@@ -217,7 +217,7 @@ func (s *SpinnerBase) Unbind() {
 }
 
 // UpButton returns a pointer to the SpinnerBase upButton.
-func (s *SpinnerBase) UpButton() *SpinnerButton {
+func (s *SpinnerBase) UpButton() *spinnerButton {
 	return s.upButton
 }
 

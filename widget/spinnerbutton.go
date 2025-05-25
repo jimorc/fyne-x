@@ -10,7 +10,7 @@ import (
 )
 
 // spinnerButton is the widget used for buttons in Spinners.
-type SpinnerButton struct {
+type spinnerButton struct {
 	widget.Button
 
 	position fyne.Position
@@ -23,8 +23,8 @@ type SpinnerButton struct {
 //
 //	resource is the resource to be used as the button icon.
 //	onTapped is the callback function for button clicks.
-func newSpinnerButton(resource fyne.Resource, onTapped func()) *SpinnerButton {
-	b := &SpinnerButton{}
+func newSpinnerButton(resource fyne.Resource, onTapped func()) *spinnerButton {
+	b := &spinnerButton{}
 	b.ExtendBaseWidget(b)
 	b.setButtonProperties(resource, onTapped)
 	return b
@@ -33,12 +33,12 @@ func newSpinnerButton(resource fyne.Resource, onTapped func()) *SpinnerButton {
 // MinSize returns the minimum size of the button. Because the minimum size is a constant
 // based on the spinner height and theme properties, the minimum size is calculated when
 // the button is created.
-func (b *SpinnerButton) MinSize() fyne.Size {
+func (b *spinnerButton) MinSize() fyne.Size {
 	return fyne.NewSize(b.size.Height, b.size.Height)
 }
 
 // Move moves the button.
-func (b *SpinnerButton) Move(pos fyne.Position) {
+func (b *spinnerButton) Move(pos fyne.Position) {
 	b.position = pos
 	b.BaseWidget.Move(pos)
 }
@@ -52,7 +52,7 @@ func (b *SpinnerButton) Move(pos fyne.Position) {
 //		limit indicates whether the spinner's value is at the corresponding limit for this
 //	 button. For example, for an up button, the  limit should be true if value == max, and
 //	 for a down button, the limit should be true if value == min.
-func (b *SpinnerButton) EnableDisable(parentDisabled, limit bool) {
+func (b *spinnerButton) EnableDisable(parentDisabled, limit bool) {
 	if parentDisabled {
 		b.Disable()
 	} else {
@@ -69,7 +69,7 @@ func (b *SpinnerButton) EnableDisable(parentDisabled, limit bool) {
 //
 //	resource is the Resource for the button icon.
 //	onTapped is the function to be called when the button is tapped.
-func (b *SpinnerButton) setButtonProperties(resource fyne.Resource, onTapped func()) {
+func (b *spinnerButton) setButtonProperties(resource fyne.Resource, onTapped func()) {
 	b.Icon = resource
 	b.Text = ""
 	b.OnTapped = onTapped
