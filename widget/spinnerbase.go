@@ -113,12 +113,12 @@ func NewSpinnerBaseWithData(s Spinnable, min, max, step float64,
 
 // AtMax returns true if the spinner data value is at its max value.
 func (s *SpinnerBase) AtMax() bool {
-	return s.data.AtMax()
+	return s.data.atMax()
 }
 
 // AtMin returns true if the spinner data value is at its min value.
 func (s *SpinnerBase) AtMin() bool {
-	return s.data.AtMin()
+	return s.data.atMin()
 }
 
 // Bind connects the specified data source to the Spinnable object.
@@ -136,8 +136,8 @@ func (s *SpinnerBase) DownButton() *spinnerButton {
 // EnableDisableButtons enables or disables the up and down buttons based on whether
 // the parent spinner is disabled and on whether the data value is equal to max or min.
 func (s *SpinnerBase) EnableDisableButtons(spinnerDisabled bool) {
-	s.upButton.enableDisable(spinnerDisabled, s.data.AtMax())
-	s.downButton.enableDisable(spinnerDisabled, s.data.AtMin())
+	s.upButton.enableDisable(spinnerDisabled, s.data.atMax())
+	s.downButton.enableDisable(spinnerDisabled, s.data.atMin())
 }
 
 // GetOnChanged retrieves the onChanged function for the spinner.
@@ -146,8 +146,8 @@ func (s *SpinnerBase) EnableDisableButtons(spinnerDisabled bool) {
 func (s *SpinnerBase) GetOnChanged() func(float64) {
 	if s.data != nil {
 		return func(float64) {
-			s.downButton.enableDisable(false, s.data.AtMin())
-			s.upButton.enableDisable(false, s.data.AtMax())
+			s.downButton.enableDisable(false, s.data.atMin())
+			s.upButton.enableDisable(false, s.data.atMax())
 			spinnerOnChanged := s.spinner.GetOnChanged()
 			if spinnerOnChanged != nil {
 				spinnerOnChanged(s.data.Value())
@@ -194,8 +194,8 @@ func (s *SpinnerBase) SetMinMaxStep(min, max, step float64) {
 		return
 	}
 	s.data.SetMinMaxStep(min, max, step)
-	s.upButton.enableDisable(s.spinner.Disabled(), s.data.AtMax())
-	s.downButton.enableDisable(s.spinner.Disabled(), s.data.AtMin())
+	s.upButton.enableDisable(s.spinner.Disabled(), s.data.atMax())
+	s.downButton.enableDisable(s.spinner.Disabled(), s.data.atMin())
 }
 
 func (s *SpinnerBase) SetValue(value float64) {
@@ -203,8 +203,8 @@ func (s *SpinnerBase) SetValue(value float64) {
 	if s.spinner.Disabled() {
 		return
 	}
-	s.upButton.enableDisable(false, s.data.AtMax())
-	s.downButton.enableDisable(false, s.data.AtMin())
+	s.upButton.enableDisable(false, s.data.atMax())
+	s.downButton.enableDisable(false, s.data.atMin())
 }
 
 func (s *SpinnerBase) StepValue() float64 {
@@ -242,7 +242,7 @@ func (s *SpinnerBase) Decrement() {
 	if s.spinner.Disabled() {
 		return
 	}
-	s.downButton.enableDisable(false, s.data.AtMin())
+	s.downButton.enableDisable(false, s.data.atMin())
 	s.upButton.Enable()
 	s.spinner.Refresh()
 }
@@ -253,7 +253,7 @@ func (s *SpinnerBase) Increment() {
 	if s.spinner.Disabled() {
 		return
 	}
-	s.upButton.enableDisable(false, s.data.AtMax())
+	s.upButton.enableDisable(false, s.data.atMax())
 	s.downButton.Enable()
 	s.spinner.Refresh()
 }

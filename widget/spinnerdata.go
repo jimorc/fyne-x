@@ -66,13 +66,13 @@ func newSpinnerDataWithData(base *SpinnerBase, min, max, step float64,
 
 }
 
-// AtMax returns true if the SpinnerData value is equal to max.
-func (d *spinnerData) AtMax() bool {
+// atMax returns true if the SpinnerData value is equal to max.
+func (d *spinnerData) atMax() bool {
 	return d.value >= d.max
 }
 
-// AtMin returns true if the SpinnerData value is equal to min.
-func (d *spinnerData) AtMin() bool {
+// atMin returns true if the SpinnerData value is equal to min.
+func (d *spinnerData) atMin() bool {
 	return d.value <= d.min
 }
 
