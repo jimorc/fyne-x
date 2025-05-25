@@ -89,12 +89,12 @@ func (d *spinnerData) bind(data binding.Float) {
 
 // Decrement decrements the SpinnerData object's value by its step size.
 func (d *spinnerData) decrement() {
-	d.SetValue(d.value - d.step)
+	d.setValue(d.value - d.step)
 }
 
 // Increment increments the SpinnerData object's value by its step size.
 func (d *spinnerData) increment() {
-	d.SetValue(d.value + d.step)
+	d.setValue(d.value + d.step)
 }
 
 // SetMinMaxStep sets the SpinnerData's minimum, maximum, and step values. The SpinnerData
@@ -114,14 +114,14 @@ func (d *spinnerData) setMinMaxStep(min, max, step float64) {
 	d.step = step
 	d.initialized = d.Validate() == nil
 	if d.initialized {
-		d.SetValue(d.min)
+		d.setValue(d.min)
 	}
 }
 
 // SetValue sets the value in the SpinnerData object.
 // If the value is less than object's min value, the value is set to min.
 // If the value is greater than object's max value, the value is set to max.
-func (d *spinnerData) SetValue(value float64) {
+func (d *spinnerData) setValue(value float64) {
 	if d.base.spinner.Disabled() || !d.initialized {
 		return
 	}
@@ -167,11 +167,11 @@ func (d *spinnerData) Validate() error {
 func (d *spinnerData) Value() float64 {
 	value := d.value
 	if !d.initialized || value < d.min {
-		d.SetValue(d.min)
+		d.setValue(d.min)
 		value = d.min
 	}
 	if value > d.max {
-		d.SetValue(d.max)
+		d.setValue(d.max)
 		value = d.max
 	}
 	return value
@@ -191,7 +191,7 @@ func (d *spinnerData) updateFromData(data binding.DataItem) {
 		fyne.LogError("Error getting current data value", err)
 		return
 	}
-	d.SetValue(val)
+	d.setValue(val)
 }
 
 // valueChanged executes any onChanged functions in the SpinnerData and Spinnable objects.

@@ -199,7 +199,7 @@ func (s *SpinnerBase) SetMinMaxStep(min, max, step float64) {
 }
 
 func (s *SpinnerBase) SetValue(value float64) {
-	s.data.SetValue(value)
+	s.data.setValue(value)
 	if s.spinner.Disabled() {
 		return
 	}

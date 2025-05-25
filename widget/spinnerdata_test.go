@@ -102,13 +102,13 @@ func TestSpinnerData_SetValue(t *testing.T) {
 		val = v
 	}
 	assert.Equal(t, 1., d.Value())
-	d.SetValue(2)
+	d.setValue(2)
 	assert.Equal(t, 2., val)
 	assert.Equal(t, 2., d.Value())
-	d.SetValue(5)
+	d.setValue(5)
 	assert.Equal(t, 4., val)
 	assert.Equal(t, 4., d.Value())
-	d.SetValue(0)
+	d.setValue(0)
 	assert.Equal(t, 1., val)
 	assert.Equal(t, 1., d.Value())
 }
@@ -117,7 +117,7 @@ func TestSpinnerData_Decrement(t *testing.T) {
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
 	d := newSpinnerData(b, 1, 4, 1)
-	d.SetValue(4.)
+	d.setValue(4.)
 	d.decrement()
 	assert.Equal(t, 3., d.Value())
 	d.decrement()
@@ -128,13 +128,13 @@ func TestSpinnerData_Decrement(t *testing.T) {
 	assert.Equal(t, 1., d.Value())
 
 	d = newSpinnerData(b, 1, 4, 2)
-	d.SetValue(4.)
+	d.setValue(4.)
 	d.decrement()
 	assert.Equal(t, 2., d.Value())
 	d.decrement()
 	assert.Equal(t, 1., d.Value())
 
-	d.SetValue(4.)
+	d.setValue(4.)
 	d.base.spinner.Disable()
 	d.decrement()
 	assert.Equal(t, 4., d.Value())
@@ -153,7 +153,7 @@ func TestSpinnerData_Increment(t *testing.T) {
 	d.increment()
 	assert.Equal(t, 4., d.Value())
 
-	d.SetValue(1.)
+	d.setValue(1.)
 	d.base.spinner.Disable()
 	d.increment()
 	assert.Equal(t, 1., d.Value())
@@ -170,14 +170,14 @@ func TestSpinnerData_ValueChanged(t *testing.T) {
 		dVal++
 		val = v
 	}
-	d.SetValue(1)
+	d.setValue(1)
 	assert.Equal(t, 1., d.value)
 	assert.Equal(t, 0., val)
 	assert.Equal(t, 0, dVal)
-	d.SetValue(2)
+	d.setValue(2)
 	assert.Equal(t, 2., val)
 	assert.Equal(t, 1, dVal)
-	d.SetValue(2)
+	d.setValue(2)
 	assert.Equal(t, 2., val)
 	assert.Equal(t, 1, dVal)
 	d.increment()
@@ -214,7 +214,7 @@ func TestSpinnerData_NewSpinnerDataWithData(t *testing.T) {
 	waitForBinding()
 	assert.Equal(t, 10., d.Value())
 
-	d.SetValue(4.)
+	d.setValue(4.)
 	waitForBinding()
 	assert.Equal(t, 4., d.Value())
 
