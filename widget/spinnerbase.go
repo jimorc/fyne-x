@@ -162,10 +162,20 @@ func (s *SpinnerBase) MaxText() string {
 	return formatAsText(s.data.max, s.format)
 }
 
+// MaxValue returns the spinnerData max value.
+func (s *SpinnerBase) MaxValue() float64 {
+	return s.data.max
+}
+
 // MinText returns the min value as a formatted string.
 // This method is useful for determining the minimum required widget size
 func (s *SpinnerBase) MinText() string {
 	return formatAsText(s.data.min, s.format)
+}
+
+// MinValue returns the spinnerData min value.
+func (s *SpinnerBase) MinValue() float64 {
+	return s.data.min
 }
 
 func (s *SpinnerBase) SetMinMaxStep(min, max, step float64) {
@@ -187,6 +197,10 @@ func (s *SpinnerBase) SetValue(value float64) {
 	s.downButton.EnableDisable(false, s.data.AtMin())
 }
 
+func (s *SpinnerBase) StepValue() float64 {
+	return s.data.step
+}
+
 // Unbind removes the binding from the spinner data.
 func (s *SpinnerBase) Unbind() {
 	s.data.Unbind()
@@ -196,6 +210,13 @@ func (s *SpinnerBase) Unbind() {
 func (s *SpinnerBase) UpButton() *SpinnerButton {
 	return s.upButton
 }
+
+// Validate validates the spinnerData values.
+func (s *SpinnerBase) Validate() error {
+	return s.data.Validate()
+}
+
+// Value returns the spinnerData value.
 func (s *SpinnerBase) Value() float64 {
 	return s.data.Value()
 }

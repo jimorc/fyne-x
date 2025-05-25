@@ -1,7 +1,6 @@
 package widget
 
 import (
-	"errors"
 	"image/color"
 
 	"fyne.io/fyne/v2"
@@ -321,21 +320,9 @@ func (s *Spinner) textSize() fyne.Size {
 	return maxTextSize(s.base.MinText(), s.base.MaxText())
 }
 
-// validate validates the Spinner widget.
-func (s *Spinner) validate() error {
-	if !s.base.Initialized() {
-		if s.base.data.min >= s.base.data.max {
-			return errors.New("spinner max value must be greater than min value")
-		}
-		if s.base.data.step < 0 {
-			return errors.New("spinner step must be greater than 0")
-		}
-		if s.base.data.step > s.base.data.max-s.base.data.min {
-			return errors.New("spinner step must be less than or equal to max - min")
-		}
-		return errors.New("spinner has not been initialized")
-	}
-	return nil
+// Validate validates the Spinner widget.
+func (s *Spinner) Validate() error {
+	return s.base.Validate()
 }
 
 // SpinnerRenderer is the renderer for the Spinner widget
@@ -407,7 +394,7 @@ func (r *SpinnerRenderer) Refresh() {
 	r.box.FillColor = th.Color(bgColor, v)
 	r.box.CornerRadius = th.Size(theme.SizeNameInputRadius)
 	r.border.CornerRadius = r.box.CornerRadius
-	if r.spinner.validate() == nil {
+	if r.spinner.Validate() == nil {
 		r.border.StrokeColor = th.Color(borderColor, v)
 	} else {
 		r.border.StrokeColor = th.Color(theme.ColorNameError, v)
