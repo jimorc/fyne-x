@@ -30,13 +30,6 @@ func newSpinnerButton(resource fyne.Resource, onTapped func()) *spinnerButton {
 	return b
 }
 
-// MinSize returns the minimum size of the button. Because the minimum size is a constant
-// based on the spinner height and theme properties, the minimum size is calculated when
-// the button is created.
-func (b *spinnerButton) MinSize() fyne.Size {
-	return fyne.NewSize(b.size.Height, b.size.Height)
-}
-
 // Move moves the button.
 func (b *spinnerButton) Move(pos fyne.Position) {
 	b.position = pos
