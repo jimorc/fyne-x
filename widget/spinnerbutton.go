@@ -43,24 +43,6 @@ func (b *SpinnerButton) Move(pos fyne.Position) {
 	b.BaseWidget.Move(pos)
 }
 
-// containsPoint is a helper method that is called to determine if the point
-// is within the button. Returns true if point is within the button and
-// false otherwise.
-//
-// Params:
-//
-//	pos is the position to check. This point is relative to the upper-left
-//
-// corner of the containing spinner widget.
-func (b *SpinnerButton) ContainsPoint(pos fyne.Position) bool {
-	if pos.X < b.position.X || pos.X > b.position.X+b.size.Width {
-		return false
-	} else if pos.Y < b.position.Y || pos.Y > b.position.Y+b.size.Height {
-		return false
-	}
-	return true
-}
-
 // enableDisable enables or disables the button based on whether the button's
 // parent spinner widget is disabled, and whether the spinner's value is at its limit.
 //

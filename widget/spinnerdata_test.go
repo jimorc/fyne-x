@@ -10,6 +10,8 @@ import (
 var val float64 = 0.
 var dVal int = 0
 
+var _ Spinnable = (*spinner)(nil)
+
 type spinner struct {
 	disabled  bool
 	OnChanged func(float64)

@@ -14,7 +14,7 @@ import (
 
 var _ fyne.Disableable = (*Spinner)(nil)
 var _ fyne.Focusable = (*Spinner)(nil)
-var _ fyne.Tappable = (*Spinner)(nil)
+
 var _ desktop.Mouseable = (*Spinner)(nil)
 var _ fyne.Scrollable = (*Spinner)(nil)
 var _ Spinnable = (*Spinner)(nil)
@@ -254,24 +254,6 @@ func (s *Spinner) SetValue(val float64) {
 		return
 	}
 	s.base.SetValue(val)
-	s.Refresh()
-}
-
-// Tapped handles primary button clicks with the cursor over
-// the Spinner object.
-// If actually over one of the spinnerButtons, processing
-// is passed to that button for handling.
-func (s *Spinner) Tapped(evt *fyne.PointEvent) {
-	if s.Disabled() {
-		return
-	}
-	if s.base.UpButton().ContainsPoint(evt.Position) {
-		s.base.UpButton().Tapped(evt)
-	} else if s.base.DownButton().ContainsPoint(evt.Position) {
-		s.base.DownButton().Tapped(evt)
-	} else {
-		return
-	}
 	s.Refresh()
 }
 

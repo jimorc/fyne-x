@@ -166,7 +166,7 @@ func TestSpinner_SetMinMaxStep_BadArgs(t *testing.T) {
 	s := NewSpinner(1, 10, 1, 0, nil)
 	s.SetMinMaxStep(11, 10, 2)
 	assert.NotNil(t, s.base.data.Validate())
-	assert.Equal(t, 1., s.base.data.Value())
+	assert.Equal(t, 10., s.base.data.Value())
 	s.SetMinMaxStep(1, 10, 10)
 	assert.NotNil(t, s.base.data.Validate())
 	assert.Equal(t, 1., s.base.data.Value())

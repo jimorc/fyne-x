@@ -31,17 +31,6 @@ func TestSpinnerButton_Move(t *testing.T) {
 	assert.Equal(t, float32(20), b.Position().Y)
 }
 
-func TestSpinnerButton_ContainsPoint(t *testing.T) {
-	b := newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), nil)
-	_ = container.NewWithoutLayout(b)
-	b.Move(fyne.NewPos(10, 20))
-
-	assert.True(t, b.ContainsPoint(fyne.NewPos(10, 20)))
-	assert.True(t, b.ContainsPoint(fyne.NewPos(10+b.size.Width, 20+b.size.Height)))
-	assert.False(t, b.ContainsPoint(fyne.NewPos(9, 20)))
-	assert.False(t, b.ContainsPoint(fyne.NewPos(10, 20+b.size.Height+1)))
-}
-
 func TestSpinnerButton_EnableDisable(t *testing.T) {
 	b := newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), nil)
 	b.EnableDisable(false, false)
