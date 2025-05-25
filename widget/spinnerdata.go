@@ -57,6 +57,8 @@ func newSpinnerDataUninitialized(base *SpinnerBase) *spinnerData {
 	return d
 }
 
+// newSpinnerDataWithData creates and initializes a new spinnerData object
+// with the data value tied to a binding.Float variable.
 func newSpinnerDataWithData(base *SpinnerBase, min, max, step float64,
 	data binding.Float) *spinnerData {
 	d := newSpinnerData(base, min, max, step)
