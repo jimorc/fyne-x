@@ -181,7 +181,7 @@ func (s *Spinner) GetOnChanged() func(float64) {
 		if s.OnChanged != nil {
 			s.OnChanged(s.Value())
 		}
-		if s.base != nil && s.base.data != nil {
+		if s.base != nil && s.base.Initialized() {
 			s.Refresh()
 		}
 	}
