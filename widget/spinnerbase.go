@@ -26,7 +26,7 @@ type Spinnable interface {
 // to increment and decrement the spinner value.
 type SpinnerBase struct {
 	spinner    Spinnable
-	data       *SpinnerData
+	data       *spinnerData
 	upButton   *SpinnerButton
 	downButton *SpinnerButton
 
@@ -83,8 +83,8 @@ func NewSpinnerBaseUninitialized(s Spinnable, decPlaces uint) *SpinnerBase {
 	base.data = NewSpinnerData(base, 0, 0, 0)
 	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.Increment)
 	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.Decrement)
-	base.upButton.EnableDisable(base.spinner.Disabled(), base.data.AtMax())
-	base.downButton.EnableDisable(base.spinner.Disabled(), base.data.AtMin())
+	base.upButton.EnableDisable(base.spinner.Disabled(), base.AtMax())
+	base.downButton.EnableDisable(base.spinner.Disabled(), base.AtMin())
 	s.Disable()
 	base.upButton.Disable()
 	base.downButton.Disable()
@@ -109,6 +109,16 @@ func NewSpinnerBaseWithData(s Spinnable, min, max, step float64,
 	base := NewSpinnerBase(s, min, max, step, decPlaces)
 	base.Bind(data)
 	return base
+}
+
+// AtMax returns true if the spinner data value is at its max value.
+func (s *SpinnerBase) AtMax() bool {
+	return s.data.AtMax()
+}
+
+// AtMin returns true if the spinner data value is at its min value.
+func (s *SpinnerBase) AtMin() bool {
+	return s.data.AtMin()
 }
 
 // Bind connects the specified data source to the Spinnable object.

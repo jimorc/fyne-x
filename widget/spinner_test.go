@@ -50,7 +50,7 @@ func TestNewSpinnerWithData(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1., val)
 
-	s.base.data.SetValue(1.52)
+	s.base.SetValue(1.52)
 	waitForBinding()
 	val, err = data.Get()
 	assert.NoError(t, err)
@@ -165,24 +165,24 @@ func TestSpinner_SetMinMaxStep(t *testing.T) {
 func TestSpinner_SetMinMaxStep_BadArgs(t *testing.T) {
 	s := NewSpinner(1, 10, 1, 0, nil)
 	s.SetMinMaxStep(11, 10, 2)
-	assert.NotNil(t, s.base.data.Validate())
-	assert.Equal(t, 10., s.base.data.Value())
+	assert.NotNil(t, s.base.Validate())
+	assert.Equal(t, 10., s.base.Value())
 	s.SetMinMaxStep(1, 10, 10)
-	assert.NotNil(t, s.base.data.Validate())
-	assert.Equal(t, 1., s.base.data.Value())
+	assert.NotNil(t, s.base.Validate())
+	assert.Equal(t, 1., s.base.Value())
 	s.SetMinMaxStep(1, 10, -1)
-	assert.NotNil(t, s.base.data.Validate())
-	assert.Equal(t, 1., s.base.data.Value())
+	assert.NotNil(t, s.base.Validate())
+	assert.Equal(t, 1., s.base.Value())
 }
 
 func TestSpinner_SetMinMaxStep_OutsideRange(t *testing.T) {
 	s := NewSpinner(-2, 20, 1, 0, nil)
 	s.SetValue(19.)
 	s.SetMinMaxStep(-1., 10., 1.2)
-	assert.Equal(t, -1., s.base.data.Value())
+	assert.Equal(t, -1., s.base.Value())
 	s.SetValue(-1.)
 	s.SetMinMaxStep(1., 10., 1.)
-	assert.Equal(t, 1., s.base.data.Value())
+	assert.Equal(t, 1., s.base.Value())
 }
 
 func TestNewSpinnerSpinner_SetMinMaxStep_DataAboveRange(t *testing.T) {

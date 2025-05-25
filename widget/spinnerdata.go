@@ -8,8 +8,8 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 )
 
-// SpinnerData contains the data used by various spinner widget types.
-type SpinnerData struct {
+// spinnerData contains the data used by various spinner widget types.
+type spinnerData struct {
 	base  *SpinnerBase
 	value float64
 	min   float64
@@ -34,7 +34,7 @@ type SpinnerData struct {
 //
 // 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
 // If decPlaces == 0, then the value is displayed as an integer.
-func NewSpinnerData(base *SpinnerBase, min, max, step float64) *SpinnerData {
+func NewSpinnerData(base *SpinnerBase, min, max, step float64) *spinnerData {
 	d := NewSpinnerDataUninitialized(base)
 	d.SetMinMaxStep(min, max, step)
 	return d
@@ -49,8 +49,8 @@ func NewSpinnerData(base *SpinnerBase, min, max, step float64) *SpinnerData {
 //
 // 0 <= decPlaces <= maxDecimals. If this value is greater than maxDecimals, it is set to maxDecimals.
 // If decPlaces == 0, then the value is displayed as an integer.
-func NewSpinnerDataUninitialized(base *SpinnerBase) *SpinnerData {
-	d := &SpinnerData{
+func NewSpinnerDataUninitialized(base *SpinnerBase) *spinnerData {
+	d := &spinnerData{
 		base:        base,
 		initialized: false,
 	}
@@ -58,7 +58,7 @@ func NewSpinnerDataUninitialized(base *SpinnerBase) *SpinnerData {
 }
 
 func NewSpinnerDataWithData(base *SpinnerBase, min, max, step float64,
-	data binding.Float) *SpinnerData {
+	data binding.Float) *spinnerData {
 	d := NewSpinnerData(base, min, max, step)
 
 	d.Bind(data)
@@ -67,19 +67,19 @@ func NewSpinnerDataWithData(base *SpinnerBase, min, max, step float64,
 }
 
 // AtMax returns true if the SpinnerData value is equal to max.
-func (d *SpinnerData) AtMax() bool {
+func (d *spinnerData) AtMax() bool {
 	return d.value >= d.max
 }
 
 // AtMin returns true if the SpinnerData value is equal to min.
-func (d *SpinnerData) AtMin() bool {
+func (d *spinnerData) AtMin() bool {
 	return d.value <= d.min
 }
 
 // Bind connects the specified data source to this Spinner widget.
 // The current value will be displayed and any changes in the data will cause the widget
 // to update.
-func (d *SpinnerData) Bind(data binding.Float) {
+func (d *spinnerData) Bind(data binding.Float) {
 	d.binder.SetCallback(d.updateFromData)
 	d.binder.Bind(data)
 	d.onChanged = func(_ float64) {
@@ -88,12 +88,12 @@ func (d *SpinnerData) Bind(data binding.Float) {
 }
 
 // Decrement decrements the SpinnerData object's value by its step size.
-func (d *SpinnerData) Decrement() {
+func (d *spinnerData) Decrement() {
 	d.SetValue(d.value - d.step)
 }
 
 // Increment increments the SpinnerData object's value by its step size.
-func (d *SpinnerData) Increment() {
+func (d *spinnerData) Increment() {
 	d.SetValue(d.value + d.step)
 }
 
@@ -108,7 +108,7 @@ func (d *SpinnerData) Increment() {
 //
 // If the previously set value is less than min, then the value is set to min.
 // If the previously set value is greater than max, then the value is set to max.
-func (d *SpinnerData) SetMinMaxStep(min, max, step float64) {
+func (d *spinnerData) SetMinMaxStep(min, max, step float64) {
 	d.min = min
 	d.max = max
 	d.step = step
@@ -121,7 +121,7 @@ func (d *SpinnerData) SetMinMaxStep(min, max, step float64) {
 // SetValue sets the value in the SpinnerData object.
 // If the value is less than object's min value, the value is set to min.
 // If the value is greater than object's max value, the value is set to max.
-func (d *SpinnerData) SetValue(value float64) {
+func (d *spinnerData) SetValue(value float64) {
 	if d.base.spinner.Disabled() || !d.initialized {
 		return
 	}
@@ -140,13 +140,13 @@ func (d *SpinnerData) SetValue(value float64) {
 
 // Unbind disconnects any configured data source from this spinnerData.
 // The current value will remain at the last value of the data source.
-func (d *SpinnerData) Unbind() {
+func (d *spinnerData) Unbind() {
 	d.binder.Unbind()
 	d.onChanged = nil
 }
 
 // Validate validates the spinnerData settings.
-func (d *SpinnerData) Validate() error {
+func (d *spinnerData) Validate() error {
 	if d.min == 0. && d.max == 0. && d.step == 0. {
 		return errors.New("spinner not initialized")
 	}
@@ -164,7 +164,7 @@ func (d *SpinnerData) Validate() error {
 
 // Value retrieves the value set in the SpinnerData object. If outside the min to max
 // range, the value will be set to either min or max as appropriate.
-func (d *SpinnerData) Value() float64 {
+func (d *spinnerData) Value() float64 {
 	value := d.value
 	if !d.initialized || value < d.min {
 		d.SetValue(d.min)
@@ -178,7 +178,7 @@ func (d *SpinnerData) Value() float64 {
 }
 
 // updateFromData updates the spinner to the value set in the bound data.
-func (d *SpinnerData) updateFromData(data binding.DataItem) {
+func (d *spinnerData) updateFromData(data binding.DataItem) {
 	if data == nil {
 		return
 	}
@@ -196,7 +196,7 @@ func (d *SpinnerData) updateFromData(data binding.DataItem) {
 
 // valueChanged executes any onChanged functions in the SpinnerData and Spinnable objects.
 // This method is executed every time the value changes in the SpinnerData object.
-func (d *SpinnerData) valueChanged() {
+func (d *spinnerData) valueChanged() {
 	if d.onChanged != nil {
 		d.onChanged(d.value)
 	}
@@ -207,7 +207,7 @@ func (d *SpinnerData) valueChanged() {
 }
 
 // writeData updates the bound data item as the result of changes in the spinnerData value.
-func (d *SpinnerData) writeData(data binding.DataItem) {
+func (d *spinnerData) writeData(data binding.DataItem) {
 	if data == nil {
 		return
 	}

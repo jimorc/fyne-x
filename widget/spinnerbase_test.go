@@ -50,7 +50,7 @@ func TestNewSpinnerBaseWithData(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1., val)
 
-	b.data.SetValue(1.52)
+	b.SetValue(1.52)
 	waitForBinding()
 	val, err = data.Get()
 	assert.NoError(t, err)
@@ -59,7 +59,7 @@ func TestNewSpinnerBaseWithData(t *testing.T) {
 	err = data.Set(3.1)
 	assert.NoError(t, err)
 	waitForBinding()
-	assert.Equal(t, 3.1, b.data.Value())
+	assert.Equal(t, 3.1, b.Value())
 }
 
 func TestSpinnerBase_SetValue(t *testing.T) {
