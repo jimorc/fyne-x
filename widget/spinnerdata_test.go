@@ -218,7 +218,7 @@ func TestSpinnerData_NewSpinnerDataWithData(t *testing.T) {
 	waitForBinding()
 	assert.Equal(t, 4., d.Value())
 
-	d.Unbind()
+	d.unbind()
 	data.Set(6.)
 	waitForBinding()
 	assert.Equal(t, 4., d.Value())

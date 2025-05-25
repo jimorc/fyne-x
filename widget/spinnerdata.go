@@ -61,7 +61,7 @@ func newSpinnerDataWithData(base *SpinnerBase, min, max, step float64,
 	data binding.Float) *spinnerData {
 	d := newSpinnerData(base, min, max, step)
 
-	d.Bind(data)
+	d.bind(data)
 	return d
 
 }
@@ -76,10 +76,10 @@ func (d *spinnerData) atMin() bool {
 	return d.value <= d.min
 }
 
-// Bind connects the specified data source to this Spinner widget.
+// bind connects the specified data source to this Spinner widget.
 // The current value will be displayed and any changes in the data will cause the widget
 // to update.
-func (d *spinnerData) Bind(data binding.Float) {
+func (d *spinnerData) bind(data binding.Float) {
 	d.binder.SetCallback(d.updateFromData)
 	d.binder.Bind(data)
 	d.onChanged = func(_ float64) {
@@ -140,7 +140,7 @@ func (d *spinnerData) SetValue(value float64) {
 
 // Unbind disconnects any configured data source from this spinnerData.
 // The current value will remain at the last value of the data source.
-func (d *spinnerData) Unbind() {
+func (d *spinnerData) unbind() {
 	d.binder.Unbind()
 	d.onChanged = nil
 }

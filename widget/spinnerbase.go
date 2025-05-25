@@ -125,7 +125,7 @@ func (s *SpinnerBase) AtMin() bool {
 // The current value will be displayed and any changes in the data will cause the widget
 // to update.
 func (s *SpinnerBase) Bind(data binding.Float) {
-	s.data.Bind(data)
+	s.data.bind(data)
 }
 
 // DownButton returns a pointer to the SpinnerBase downButton.
@@ -213,7 +213,7 @@ func (s *SpinnerBase) StepValue() float64 {
 
 // Unbind removes the binding from the spinner data.
 func (s *SpinnerBase) Unbind() {
-	s.data.Unbind()
+	s.data.unbind()
 }
 
 // UpButton returns a pointer to the SpinnerBase upButton.
