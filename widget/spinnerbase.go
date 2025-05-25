@@ -52,7 +52,7 @@ func NewSpinnerBase(s Spinnable, min, max, step float64, decPlaces uint) *Spinne
 
 	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.Increment)
 	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.Decrement)
-	base.data = NewSpinnerData(base, min, max, step)
+	base.data = newSpinnerData(base, min, max, step)
 	if base.data.initialized {
 		s.Enable()
 		base.upButton.Enable()
@@ -80,7 +80,7 @@ func NewSpinnerBase(s Spinnable, min, max, step float64, decPlaces uint) *Spinne
 func NewSpinnerBaseUninitialized(s Spinnable, decPlaces uint) *SpinnerBase {
 	base := &SpinnerBase{spinner: s}
 	base.setFormat(decPlaces)
-	base.data = NewSpinnerData(base, 0, 0, 0)
+	base.data = newSpinnerData(base, 0, 0, 0)
 	base.upButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropUp), base.Increment)
 	base.downButton = newSpinnerButton(theme.Icon(theme.IconNameArrowDropDown), base.Decrement)
 	base.upButton.enableDisable(base.spinner.Disabled(), base.AtMax())
@@ -190,7 +190,7 @@ func (s *SpinnerBase) MinValue() float64 {
 
 func (s *SpinnerBase) SetMinMaxStep(min, max, step float64) {
 	if s.data == nil {
-		s.data = NewSpinnerData(s, min, max, step)
+		s.data = newSpinnerData(s, min, max, step)
 		return
 	}
 	s.data.SetMinMaxStep(min, max, step)

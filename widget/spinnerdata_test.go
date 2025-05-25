@@ -38,7 +38,7 @@ func (s *spinner) Refresh() {}
 func TestSpinnerData_NewSpinnerData(t *testing.T) {
 	s := &Spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerData(b, 1, 10, 2)
+	d := newSpinnerData(b, 1, 10, 2)
 	assert.True(t, d.initialized)
 	assert.Equal(t, 1., d.min)
 	assert.Equal(t, 10., d.max)
@@ -49,13 +49,13 @@ func TestSpinnerData_NewSpinnerData(t *testing.T) {
 func TestSpinnerData_InvalidArgs(t *testing.T) {
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerData(b, 11, 10, 2)
+	d := newSpinnerData(b, 11, 10, 2)
 	assert.False(t, d.initialized)
 
-	d = NewSpinnerData(b, 1, 10, 0)
+	d = newSpinnerData(b, 1, 10, 0)
 	assert.False(t, d.initialized)
 
-	d = NewSpinnerData(b, 1, 2, 2)
+	d = newSpinnerData(b, 1, 2, 2)
 	assert.False(t, d.initialized)
 }
 
@@ -69,7 +69,7 @@ func TestSpinnerDataUninitialized(t *testing.T) {
 func TestSpinnerData_Validate(t *testing.T) {
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerData(b, 1, 2, 1)
+	d := newSpinnerData(b, 1, 2, 1)
 	err := d.Validate()
 	assert.Nil(t, err)
 
@@ -78,17 +78,17 @@ func TestSpinnerData_Validate(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner not initialized", err.Error())
 
-	d = NewSpinnerData(b, 2, 2, 1)
+	d = newSpinnerData(b, 2, 2, 1)
 	err = d.Validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner max value must be greater than min value", err.Error())
 
-	d = NewSpinnerData(b, 1, 2, 0)
+	d = newSpinnerData(b, 1, 2, 0)
 	err = d.Validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner step must be greater than 0", err.Error())
 
-	d = NewSpinnerData(b, 1, 2, 3)
+	d = newSpinnerData(b, 1, 2, 3)
 	err = d.Validate()
 	assert.NotNil(t, err)
 	assert.Equal(t, "spinner step must be less than or equal to max - min", err.Error())
@@ -97,7 +97,7 @@ func TestSpinnerData_Validate(t *testing.T) {
 func TestSpinnerData_SetValue(t *testing.T) {
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerData(b, 1, 4, 1)
+	d := newSpinnerData(b, 1, 4, 1)
 	d.onChanged = func(v float64) {
 		val = v
 	}
@@ -116,7 +116,7 @@ func TestSpinnerData_SetValue(t *testing.T) {
 func TestSpinnerData_Decrement(t *testing.T) {
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerData(b, 1, 4, 1)
+	d := newSpinnerData(b, 1, 4, 1)
 	d.SetValue(4.)
 	d.Decrement()
 	assert.Equal(t, 3., d.Value())
@@ -127,7 +127,7 @@ func TestSpinnerData_Decrement(t *testing.T) {
 	d.Decrement()
 	assert.Equal(t, 1., d.Value())
 
-	d = NewSpinnerData(b, 1, 4, 2)
+	d = newSpinnerData(b, 1, 4, 2)
 	d.SetValue(4.)
 	d.Decrement()
 	assert.Equal(t, 2., d.Value())
@@ -143,7 +143,7 @@ func TestSpinnerData_Decrement(t *testing.T) {
 func TestSpinnerData_Increment(t *testing.T) {
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerData(b, 1, 4, 1)
+	d := newSpinnerData(b, 1, 4, 1)
 	d.Increment()
 	assert.Equal(t, 2., d.Value())
 	d.Increment()
@@ -164,7 +164,7 @@ func TestSpinnerData_ValueChanged(t *testing.T) {
 	val = 0.
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerData(b, 1, 4, 1)
+	d := newSpinnerData(b, 1, 4, 1)
 	assert.Equal(t, 0., val)
 	d.onChanged = func(v float64) {
 		dVal++
