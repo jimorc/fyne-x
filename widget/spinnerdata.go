@@ -57,7 +57,7 @@ func newSpinnerDataUninitialized(base *SpinnerBase) *spinnerData {
 	return d
 }
 
-func NewSpinnerDataWithData(base *SpinnerBase, min, max, step float64,
+func newSpinnerDataWithData(base *SpinnerBase, min, max, step float64,
 	data binding.Float) *spinnerData {
 	d := newSpinnerData(base, min, max, step)
 

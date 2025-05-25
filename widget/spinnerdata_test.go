@@ -209,7 +209,7 @@ func TestSpinnerData_NewSpinnerDataWithData(t *testing.T) {
 	var data binding.Float = binding.NewFloat()
 	s := &spinner{}
 	b := &SpinnerBase{spinner: s}
-	d := NewSpinnerDataWithData(b, 1, 12, 1, data)
+	d := newSpinnerDataWithData(b, 1, 12, 1, data)
 	data.Set(10.)
 	waitForBinding()
 	assert.Equal(t, 10., d.Value())
