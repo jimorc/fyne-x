@@ -5,7 +5,10 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/lang"
 	"fyne.io/fyne/v2/theme"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 // maxDecimals is the maximum number of decimal places that can be displayed.
@@ -31,6 +34,7 @@ type SpinnerBase struct {
 	downButton *spinnerButton
 
 	format string
+	mPr    *message.Printer
 }
 
 // NewSpinnerBase creates and initializes a new SpinnerBase object.
@@ -169,7 +173,7 @@ func (s *SpinnerBase) Initialized() bool {
 // MaxText returns the max value as a formatted string.
 // This method is useful for determining the minimum required widget size.
 func (s *SpinnerBase) MaxText() string {
-	return formatAsText(s.data.max, s.format)
+	return s.formatAsText(s.data.max, s.format)
 }
 
 // MaxValue returns the spinnerData max value.
@@ -180,7 +184,7 @@ func (s *SpinnerBase) MaxValue() float64 {
 // MinText returns the min value as a formatted string.
 // This method is useful for determining the minimum required widget size
 func (s *SpinnerBase) MinText() string {
-	return formatAsText(s.data.min, s.format)
+	return s.formatAsText(s.data.min, s.format)
 }
 
 // MinValue returns the spinnerData min value.
@@ -233,7 +237,7 @@ func (s *SpinnerBase) Value() float64 {
 
 // ValueText retrieves the spinner value as formatted text.
 func (s *SpinnerBase) ValueText() string {
-	return formatAsText(s.data.value, s.format)
+	return s.formatAsText(s.data.value, s.format)
 }
 
 // Decrement decrements the data's value by step amount, or to min if that is larger.
@@ -258,6 +262,21 @@ func (s *SpinnerBase) Increment() {
 	s.spinner.Refresh()
 }
 
+// formatAsText formats the value according to the specified format.
+//
+// Params:
+//
+//	value is the value to format.
+//	format is the format to use. This format should be either "%d", or "%.nf"
+//	where n is either an empty string or an integer.
+func (s *SpinnerBase) formatAsText(value float64, format string) string {
+	if format == "%d" {
+		return s.mPr.Sprintf(format, int(value))
+	} else {
+		return s.mPr.Sprintf(format, value)
+	}
+}
+
 // setFormat determines the format to display the value in.
 //
 // Params:
@@ -275,19 +294,12 @@ func (s *SpinnerBase) setFormat(decPlaces uint) {
 	} else {
 		s.format = fmt.Sprintf("%%.%df", decPlaces)
 	}
-}
-
-// formatAsText formats the value according to the specified format.
-//
-// Params:
-//
-//	value is the value to format.
-//	format is the format to use. This format should be either "%d", or "%.nf"
-//	where n is either an empty string or an integer.
-func formatAsText(value float64, format string) string {
-	if format == "%d" {
-		return fmt.Sprintf(format, int(value))
-	} else {
-		return fmt.Sprintf(format, value)
+	locale := lang.SystemLocale().String()
+	lang, err := language.Parse(locale)
+	if err != nil {
+		fyne.LogError(fmt.Sprintf("'%s' parse error: ", locale), err)
+		lang = language.English // Fallback to English
+		locale = "en-US"
 	}
+	s.mPr = message.NewPrinter(lang)
 }
